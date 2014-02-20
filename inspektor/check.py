@@ -5,6 +5,7 @@ import tempfile
 
 from inspektor import lint
 from inspektor import reindent
+from inspektor import style
 from inspektor import inspector
 from inspektor import vcs
 from inspektor import utils
@@ -52,6 +53,7 @@ class FileChecker(object):
         """
         self.linter = lint.Linter(verbose=False)
         self.indenter = reindent.Reindenter(verbose=False)
+        self.style_checker = style.StyleChecker()
         self.vcs = vcs.VCS()
 
     def _check_indent(self, path):
@@ -74,6 +76,12 @@ class FileChecker(object):
         Verifies the file with pylint.
         """
         return self.linter.check_file(path)
+
+    def _check_style(self, path):
+        """
+        Verifies the file compliance to PEP8.
+        """
+        return self.style_checker.check_file(path)
 
     def _check_permissions(self, path):
         """
@@ -105,6 +113,7 @@ class FileChecker(object):
         """
         return (self._check_syntax(path) and
                 self._check_indent(path) and
+                self._check_style(path) and
                 self._check_permissions(path))
 
 
