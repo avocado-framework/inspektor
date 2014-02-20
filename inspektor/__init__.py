@@ -37,6 +37,11 @@ DEFAULT_LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'inspektor.style': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'inspektor.utils': {
             'handlers': ['console'],
             'level': 'INFO',
