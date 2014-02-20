@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 
 from inspektor import lint
 from inspektor import reindent
+from inspektor import check
 
 log = logging.getLogger("inspektor.app")
 
@@ -36,6 +37,12 @@ class InspektorApp(object):
                             nargs='?',
                             default="")
         pindent.set_defaults(func=reindent.run_reindent)
+
+        pindent = subparsers.add_parser('github',
+                                        help='check GitHub Pull Requests')
+        pindent.add_argument('gh_id', type=int,
+                             help='GitHub Pull Request ID')
+        pindent.set_defaults(func=check.check_patch_github)
 
         self.args = self.arg_parser.parse_args()
 
