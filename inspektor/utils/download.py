@@ -13,7 +13,7 @@ def is_url(path):
     Return true if path looks like a URL
     """
     url_parts = urlparse.urlparse(path)
-    return (url_parts[0] in ('http', 'ftp', 'git'))
+    return (url_parts[0] in ('http', 'https', 'ftp', 'git'))
 
 
 def url_open(url, data=None, timeout=5):
