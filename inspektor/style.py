@@ -76,8 +76,8 @@ def run_style(args):
     style_checker = StyleChecker(verbose=args.verbose)
 
     if style_checker.check(path):
-        log.info("Syntax check PASS")
+        log.info("PEP8 compliance check PASS")
         sys.exit(0)
     else:
-        log.error("Syntax check FAIL")
+        log.error("PEP8 compliance FAIL")
         sys.exit(1)
