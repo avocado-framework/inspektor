@@ -178,7 +178,7 @@ class PatchChecker(FileChecker):
         return collection
 
     def _get_github_project_name(self):
-        project_name, _ = license_project_name()
+        project_name, _ = license_project_name(self.vcs.cwd)
         return project_name
 
     def _get_github_url(self, gh_id):
