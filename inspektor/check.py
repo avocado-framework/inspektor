@@ -14,6 +14,7 @@ LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')
 # Hostname of patchwork server to use
 PWHOST = "patchwork.virt.bos.redhat.com"
 
+log = logging.getLogger("inspektor.check")
 
 # Rely on built-in recursion limit to limit number of directories searched
 def license_project_name(path):
@@ -110,7 +111,6 @@ class PatchChecker(FileChecker):
     def __init__(self, patch=None, patchwork_id=None, github_id=None):
         FileChecker.__init__(self)
         self.base_dir = TMP_FILE_DIR
-        self.log = logging.getLogger("inspektor.check")
 
         if patch:
             self.patch = os.path.abspath(patch)
@@ -128,12 +128,12 @@ class PatchChecker(FileChecker):
 
         changed_files_before = self.vcs.get_modified_files()
         if changed_files_before:
-            self.log.error("Repository has changed files prior to patch "
-                           "application")
+            log.error("Repository has changed files prior to patch "
+                      "application")
             answer = utils.ask("Would you like to revert them?",
                                auto=self.confirm)
             if answer == "n":
-                self.log.error("Not safe to proceed without reverting files.")
+                log.error("Not safe to proceed without reverting files.")
                 sys.exit(1)
             else:
                 for changed_file in changed_files_before:
@@ -218,3 +218,14 @@ class PatchChecker(FileChecker):
     def check(self):
         self.vcs.apply_patch(self.patch)
         return self._check_files_modified_patch()
+
+
+def check_patch_github(args):
+    gh_id = args.gh_id
+    checker = PatchChecker(github_id=gh_id)
+    if checker.check():
+        log.info("Github ID #%s check PASS", gh_id)
+        sys.exit(0)
+    else:
+        log.info("Github ID #%s check FAIL", gh_id)
+        sys.exit(1)
