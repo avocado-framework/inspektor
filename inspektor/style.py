@@ -45,7 +45,8 @@ class StyleChecker(object):
         if not inspector.is_python():
             return True
         opt_obj = pep8.StyleGuide().options
-        opt_obj.ignore = tuple(self.ignored_errors.split(','))
+        ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
+        opt_obj.ignore = tuple(set(ignore_list))
         runner = pep8.Checker(filename=path, options=opt_obj)
         if runner.check_all() != 0:
             log.error('PEP8 check fail: %s', path)
