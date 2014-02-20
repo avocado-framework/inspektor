@@ -31,17 +31,14 @@ Currently inspektor knows how to handle subversion and git.
 Usage
 -----
 
-1) Go to the root of your project source code clone [2]
+1) Go to the root of your project source code clone
 2) If you want to check code with pylint:
 ::
 
     inspekt lint
-
 3) If you want to check indentation:
 ::
 
     inspekt indent
 
 [1] http://autotest.github.io/
-[2] We're using git terminology because at the time of this writing git is the
-    defacto standard in version control system for Open Source/Free Software.
