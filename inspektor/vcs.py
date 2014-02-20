@@ -362,5 +362,5 @@ class GitBackend(object):
                 m_file = line.split()[-1][2:]
                 if m_file not in modified_files:
                     modified_files.append(m_file)
-        patch.close()
+        patch_contents.close()
         return modified_files
