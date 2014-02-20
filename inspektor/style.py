@@ -3,6 +3,7 @@ import os
 import sys
 
 import pep8
+import autopep8
 
 from inspector import PathInspector
 
@@ -50,6 +51,12 @@ class StyleChecker(object):
         if runner.check_all() != 0:
             log.error('PEP8 check fail: %s', path)
             self.failed_paths.append(path)
+            log.error('Trying to fix errors with autopep8')
+            opt_obj = autopep8.parse_args([path,
+                                           '--ignore',
+                                           self.ignored_errors,
+                                           '--in-place'])[0]
+            autopep8.fix_file(path, options=opt_obj)
         return runner.check_all() == 0
 
     def check(self, path):
