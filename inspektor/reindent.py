@@ -7,6 +7,7 @@ from inspector import PathInspector
 
 log = logging.getLogger("inspektor.reindent")
 
+
 def _rstrip(line, JUNK='\n \t'):
     """
     Return line stripped of trailing spaces, tabs, newlines.
@@ -169,7 +170,9 @@ class Run(object):
             if line:   # not endmarker
                 self.stats.append((sline, self.level))
 
+
 class Reindenter(object):
+
     def __init__(self, verbose=True):
         self.log = logging.getLogger('inspektor.reindent')
         self.verbose = verbose

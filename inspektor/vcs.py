@@ -134,7 +134,7 @@ class SubVersionBackend(object):
         stdout = None
         try:
             result = process.run("svn status --ignore-externals %s" % fl,
-                               verbose=False)
+                                 verbose=False)
             stdout = result.stdout
         except exceptions.CmdError:
             return False
@@ -331,8 +331,8 @@ class GitBackend(object):
         """
         process.run("git checkout master", verbose=False)
         process.run("git checkout -b %s" %
-                  os.path.basename(patch).rstrip(".patch"),
-                  verbose=False)
+                    os.path.basename(patch).rstrip(".patch"),
+                    verbose=False)
         try:
             process.run("git am -3 %s" % patch, verbose=False)
         except exceptions.CmdError, e:

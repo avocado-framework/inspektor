@@ -17,6 +17,8 @@ PWHOST = "patchwork.virt.bos.redhat.com"
 log = logging.getLogger("inspektor.check")
 
 # Rely on built-in recursion limit to limit number of directories searched
+
+
 def license_project_name(path):
     '''
     Locate the nearest LICENSE file, take first word as the project name
@@ -88,7 +90,7 @@ class FileChecker(object):
         path_is_exec = path_inspector.has_exec_permission()
         if path_is_script:
             if not path_is_exec:
-                result=False
+                result = False
                 self.vcs.set_file_executable(path)
         else:
             if path_is_exec:

@@ -9,6 +9,7 @@ log = logging.getLogger('inspektor.utils')
 
 
 class CmdResult(object):
+
     """
     Command execution result.
 
@@ -18,6 +19,7 @@ class CmdResult(object):
     stderr:      String containing stderr of the process
     duration:    Elapsed wall clock time running the process
     """
+
     def __init__(self, command="", stdout="", stderr="",
                  exit_status=None, duration=0):
         self.command = command

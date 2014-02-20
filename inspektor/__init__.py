@@ -12,9 +12,9 @@ DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-         'brief': {
+        'brief': {
             'format': '%(message)s',
-         },
+        },
     },
     'handlers': {
         'console': {

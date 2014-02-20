@@ -2,7 +2,9 @@
 Base exception definitions.
 """
 
+
 class CmdError(Exception):
+
     def __init__(self, command, result):
         self.command = command
         self.result = result

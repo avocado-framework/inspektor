@@ -11,10 +11,13 @@ from inspektor import check
 
 log = logging.getLogger("inspektor.app")
 
+
 class InspektorApp(object):
+
     """
     Basic inspektor application.
     """
+
     def __init__(self):
         self.arg_parser = ArgumentParser(description='Inspektor code check')
         self.arg_parser.add_argument('-v', '--verbose', action='store_true',
@@ -22,21 +25,21 @@ class InspektorApp(object):
                                      dest='verbose')
 
         subparsers = self.arg_parser.add_subparsers(title='subcommands',
-                                                description='valid subcommands',
-                                                help='subcommand help')
+                                                    description='valid subcommands',
+                                                    help='subcommand help')
 
         plint = subparsers.add_parser('lint', help='check code with pylint')
         plint.add_argument('path', type=str,
-                            help='Path to check (empty for full tree check)',
-                            nargs='?',
-                            default="")
+                           help='Path to check (empty for full tree check)',
+                           nargs='?',
+                           default="")
         plint.set_defaults(func=lint.run_lint)
 
         pindent = subparsers.add_parser('indent', help='check code indentation')
         pindent.add_argument('path', type=str,
-                            help='Path to check (empty for full tree check)',
-                            nargs='?',
-                            default="")
+                             help='Path to check (empty for full tree check)',
+                             nargs='?',
+                             default="")
         pindent.set_defaults(func=reindent.run_reindent)
 
         pstyle = subparsers.add_parser('style',

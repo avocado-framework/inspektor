@@ -9,7 +9,9 @@ from inspector import PathInspector
 
 log = logging.getLogger("inspektor.style")
 
+
 class StyleChecker(object):
+
     def __init__(self, verbose=True):
         self.verbose = verbose
         self.ignored_errors = 'E501,W601'
@@ -64,6 +66,7 @@ class StyleChecker(object):
             return self.check_file(path)
         elif os.path.isdir(path):
             return self.check_dir(path)
+
 
 def run_style(args):
     path = args.path

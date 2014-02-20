@@ -8,7 +8,9 @@ from inspector import PathInspector
 
 log = logging.getLogger("inspektor.lint")
 
+
 class Linter(object):
+
     def __init__(self, verbose=True):
         self.verbose = verbose
         self.ignored_errors = 'E1002,E1101,E1103,E1120,F0401,I0011'
@@ -66,6 +68,7 @@ class Linter(object):
             return self.check_file(path)
         elif os.path.isdir(path):
             return self.check_dir(path)
+
 
 def run_lint(args):
     path = args.path

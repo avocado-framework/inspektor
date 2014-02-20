@@ -4,7 +4,9 @@ import stat
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
 
+
 class PathInspector(object):
+
     def __init__(self, path):
         self.path = path
 
