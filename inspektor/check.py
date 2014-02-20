@@ -196,7 +196,7 @@ class PatchChecker(FileChecker):
         """
         patch_url = self._get_github_url(gh_id)
         patch_dest = os.path.join(self.base_dir, 'github-%s.patch' % gh_id)
-        return utils.download.url_download(patch_url, patch_dest)
+        return utils.download.get_file(patch_url, patch_dest)
 
     def _check_files_modified_patch(self):
         files_failed_check = []
