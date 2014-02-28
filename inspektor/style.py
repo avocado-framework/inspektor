@@ -58,7 +58,7 @@ class StyleChecker(object):
                                            '--ignore',
                                            self.ignored_errors,
                                            '--in-place'])[0]
-            autopep8.fix_file(path, options=opt_obj)
+            autopep8.fix_file(path, opt_obj)
         return runner.check_all() == 0
 
     def check(self, path):
