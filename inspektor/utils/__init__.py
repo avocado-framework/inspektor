@@ -8,7 +8,7 @@ import process
 log = logging.getLogger('inspektor.utils')
 
 
-def ask(question, auto=False):
+def ask(question, auto=False, options="y/n"):
     """
     Raw input with a prompt.
 
@@ -16,9 +16,9 @@ def ask(question, auto=False):
     :param auto: Whether to return "y" instead of asking the question
     """
     if auto:
-        log.info("%s (y/n) y" % question)
+        log.info("%s (%s) y" % (question, options))
         return "y"
-    return raw_input("%s (y/n) " % question)
+    return raw_input("%s (%s) " % (question, options))
 
 
 def random_string(length, ignore_str=string.punctuation,
