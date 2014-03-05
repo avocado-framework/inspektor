@@ -150,7 +150,6 @@ class PatchChecker(FileChecker):
                     self.vcs.revert_file(changed_file)
 
         self.untracked_files = self.vcs.get_unknown_files()
-        self.vcs.update()
 
     def _get_patchwork_url(self, pw_id):
         return "http://%s/patch/%s/mbox/" % (self.pwhost, pw_id)
