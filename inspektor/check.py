@@ -141,8 +141,7 @@ class PatchChecker(FileChecker):
         if changed_files_before:
             log.error("Repository has changed files prior to patch "
                       "application")
-            answer = utils.ask("Would you like to revert them?",
-                               auto=self.confirm)
+            answer = utils.ask("Would you like to revert them?")
             if answer == "n":
                 log.error("Not safe to proceed without reverting files.")
                 sys.exit(1)
@@ -151,7 +150,6 @@ class PatchChecker(FileChecker):
                     self.vcs.revert_file(changed_file)
 
         self.untracked_files = self.vcs.get_unknown_files()
-        self.vcs.update()
 
     def _get_patchwork_url(self, pw_id):
         return "http://%s/patch/%s/mbox/" % (self.pwhost, pw_id)

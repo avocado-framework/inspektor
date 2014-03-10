@@ -329,10 +329,69 @@ class GitBackend(object):
 
         :param patch: Path to the patch file.
         """
+        def branch_suffix(name):
+            suffix = 1
+            while not process.run("git show-ref --verify --quiet "
+                                  "refs/heads/%s_%s" % (branch, suffix),
+                                  verbose=False,
+                                  ignore_status=True).exit_status:
+                suffix += 1
+            return "%s_%s" % (name, suffix)
         process.run("git checkout master", verbose=False)
-        process.run("git checkout -b %s" %
-                    os.path.basename(patch).rstrip(".patch"),
-                    verbose=False)
+        branch = os.path.basename(patch).rstrip(".patch")
+        try:
+            process.run("git checkout -b %s" % branch,
+                        verbose=False)
+        except exceptions.CmdError, exc:
+            self.log.error("branch %s already exists!"
+                           % branch)
+            answer = utils.ask("What would you like to do?",
+                               options="Abort/Delete/Rename/OldBase/NewBase")
+            if not answer:
+                answer = "A"
+            answer = answer[0].upper()
+            if answer == "A":
+                self.log.info("Aborting check")
+                sys.exit(1)
+            elif answer == "D":
+                self.log.info("Deleting branch %s", branch)
+                process.run("git branch -D %s" % branch, verbose=False)
+                process.run("git checkout -b %s" % branch, verbose=False)
+            elif answer == "R":     # Rename the old branch
+                old_branch = branch_suffix(branch)
+                self.log.info("Moving branch %s to %s", branch, old_branch)
+                process.run("git branch -M %s %s"
+                            % (branch, old_branch), verbose=False)
+                process.run("git checkout -b %s" % branch, verbose=False)
+            elif answer == "O":     # Rename the old branch and use old master
+                old_branch = branch_suffix(branch)
+                self.log.info("Moving branch %s to %s", branch, old_branch)
+                process.run("git branch -M %s %s"
+                            % (branch, old_branch), verbose=False)
+                process.run("git checkout -b %s" % branch, verbose=False)
+                base = process.run("git merge-base %s %s"
+                                   % (branch, old_branch),
+                                   verbose=False).stdout.strip()
+                self.log.info("Last common base is %s", base)
+                process.run("git reset --hard %s" % base, verbose=False)
+            elif answer == "N":     # Rename and rebase the old branch
+                old_branch = branch_suffix(branch)
+                self.log.info("Moving branch %s to %s and rebasing it to "
+                              "the current master", branch, old_branch)
+                process.run("git branch -M %s %s"
+                            % (branch, old_branch), verbose=False)
+                process.run("git checkout %s" % old_branch, verbose=False)
+                ret = process.run("git rebase master", verbose=False,
+                                  ignore_status=True)
+                if ret.exit_status:
+                    self.log.error("Fail to automatically rebase old branch "
+                                   "%s to the current master. Continuing "
+                                   "without automatic rebase (as if you'd "
+                                   "chosen 'Rename')", old_branch)
+                    process.run("git rebase --abort", verbose=False,
+                                ignore_status=True)
+                process.run("git checkout master", verbose=False)
+                process.run("git checkout -b %s" % branch, verbose=False)
         try:
             process.run("git am -3 %s" % patch, verbose=False)
         except exceptions.CmdError, e:
