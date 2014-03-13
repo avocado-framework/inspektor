@@ -68,6 +68,15 @@ class StyleChecker(object):
             return self.check_dir(path)
 
 
+def set_arguments(parser):
+    pstyle = parser.add_parser('style',
+                               help='check code compliance to PEP8')
+    pstyle.add_argument('path', type=str,
+                        help='Path to check (empty for full tree check)',
+                        nargs='?',
+                        default="")
+    pstyle.set_defaults(func=run_style)
+
 def run_style(args):
     path = args.path
     if not path:

@@ -230,6 +230,12 @@ class PatchChecker(FileChecker):
         self.vcs.apply_patch(self.patch)
         return self._check_files_modified_patch()
 
+def set_arguments(parser):
+    pgh = parser.add_parser('github',
+                            help='check GitHub Pull Requests')
+    pgh.add_argument('gh_id', type=int,
+                     help='GitHub Pull Request ID')
+    pgh.set_defaults(func=check_patch_github)
 
 def check_patch_github(args):
     gh_id = args.gh_id

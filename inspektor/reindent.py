@@ -222,6 +222,14 @@ class Reindenter(object):
             return self.check_dir(path)
 
 
+def set_arguments(parser):
+    pindent = parser.add_parser('indent', help='check code indentation')
+    pindent.add_argument('path', type=str,
+                         help='Path to check (empty for full tree check)',
+                         nargs='?',
+                         default="")
+    pindent.set_defaults(func=run_reindent)
+
 def run_reindent(args):
     path = args.path
     if not path:
