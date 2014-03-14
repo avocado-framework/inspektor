@@ -77,6 +77,7 @@ def set_arguments(parser):
                         default="")
     pstyle.set_defaults(func=run_style)
 
+
 def run_style(args):
     path = args.path
     if not path:

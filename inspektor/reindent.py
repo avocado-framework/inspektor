@@ -230,6 +230,7 @@ def set_arguments(parser):
                          default="")
     pindent.set_defaults(func=run_reindent)
 
+
 def run_reindent(args):
     path = args.path
     if not path:

@@ -78,6 +78,7 @@ def set_arguments(parser):
                        default="")
     plint.set_defaults(func=run_lint)
 
+
 def run_lint(args):
     path = args.path
     if not path:
