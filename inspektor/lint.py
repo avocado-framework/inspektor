@@ -70,6 +70,14 @@ class Linter(object):
             return self.check_dir(path)
 
 
+def set_arguments(parser):
+    plint = parser.add_parser('lint', help='check code with pylint')
+    plint.add_argument('path', type=str,
+                       help='Path to check (empty for full tree check)',
+                       nargs='?',
+                       default="")
+    plint.set_defaults(func=run_lint)
+
 def run_lint(args):
     path = args.path
     if not path:
