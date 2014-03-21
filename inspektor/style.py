@@ -87,7 +87,7 @@ def run_style(args):
 
     if style_checker.check(path):
         log.info("PEP8 compliance check PASS")
-        sys.exit(0)
+        return 0
     else:
         log.error("PEP8 compliance FAIL")
-        sys.exit(1)
+        return 1

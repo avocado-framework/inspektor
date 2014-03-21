@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import tempfile
 
 from inspektor import lint
@@ -132,10 +131,11 @@ class PatchChecker(FileChecker):
         if github_id:
             self.patch = self._fetch_from_github(github_id)
 
+    def validate(self):
         if not os.path.isfile(self.patch):
             logging.error("Invalid patch file %s provided. Aborting.",
                           self.patch)
-            sys.exit(1)
+            return 1
 
         changed_files_before = self.vcs.get_modified_files()
         if changed_files_before:
@@ -144,7 +144,7 @@ class PatchChecker(FileChecker):
             answer = utils.ask("Would you like to revert them?")
             if answer == "n":
                 log.error("Not safe to proceed without reverting files.")
-                sys.exit(1)
+                return 1
             else:
                 for changed_file in changed_files_before:
                     self.vcs.revert_file(changed_file)
@@ -240,9 +240,10 @@ def set_arguments(parser):
 def check_patch_github(args):
     gh_id = args.gh_id
     checker = PatchChecker(github_id=gh_id)
+    checker.validate()
     if checker.check():
         log.info("Github ID #%s check PASS", gh_id)
-        sys.exit(0)
+        return 0
     else:
         log.info("Github ID #%s check FAIL", gh_id)
-        sys.exit(1)
+        return 1

@@ -88,7 +88,7 @@ def run_lint(args):
 
     if linter.check(path):
         log.info("Syntax check PASS")
-        sys.exit(0)
+        return 0
     else:
         log.error("Syntax check FAIL")
-        sys.exit(1)
+        return 1

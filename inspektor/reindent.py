@@ -1,5 +1,4 @@
 import os
-import sys
 import tokenize
 import logging
 
@@ -240,7 +239,7 @@ def run_reindent(args):
 
     if reindenter.check(path):
         log.info("Indentation check PASS")
-        sys.exit(0)
+        return 0
     else:
         log.error("Indentation check FAIL")
-        sys.exit(1)
+        return 1
