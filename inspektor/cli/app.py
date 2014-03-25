@@ -34,4 +34,4 @@ class InspektorApp(object):
         self.args = self.arg_parser.parse_args()
 
     def run(self):
-        self.args.func(self.args)
+        return self.args.func(self.args)

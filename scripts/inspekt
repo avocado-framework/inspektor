@@ -11,4 +11,4 @@ import inspektor
 
 if __name__ == '__main__':
     app = inspektor.cli.app.InspektorApp()
-    app.run()
+    sys.exit(app.run())

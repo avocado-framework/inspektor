@@ -3,7 +3,6 @@ Module that has models for version control systems, for inspektor scripts.
 """
 import logging
 import os
-import sys
 
 from inspektor import exceptions
 from inspektor import utils
@@ -32,7 +31,7 @@ class VCS(object):
         else:
             self.log.error("Could not figure version control system. You "
                            "must be at the top of the project's directory")
-            sys.exit(1)
+            return 1
 
     def get_unknown_files(self):
         """
@@ -161,7 +160,7 @@ class SubVersionBackend(object):
             process.run('svn add %s' % fl, verbose=False)
         except exceptions.CmdError, e:
             self.log.error("Problem adding file %s to svn: %s", fl, e)
-            sys.exit(1)
+            return 1
 
     def revert_file(self, fl):
         """
@@ -173,7 +172,7 @@ class SubVersionBackend(object):
             process.run('svn revert %s' % fl, verbose=False)
         except exceptions.CmdError, e:
             self.log.error("Problem reverting file %s: %s", fl, e)
-            sys.exit(1)
+            return 1
 
     def set_file_executable(self, fl):
         """
@@ -204,7 +203,7 @@ class SubVersionBackend(object):
             self.log.error("2 - You are not at the top of the tree")
             self.log.error("3 - Patch was made using an older tree")
             self.log.error("4 - Mailer might have messed the patch")
-            sys.exit(1)
+            return 1
 
     def update(self):
         try:
@@ -295,7 +294,7 @@ class GitBackend(object):
             process.run('git add %s' % fl, verbose=False)
         except exceptions.CmdError, e:
             self.log.error("Problem adding file %s to git: %s", fl, e)
-            sys.exit(1)
+            return 1
 
     def revert_file(self, fl):
         """
@@ -307,7 +306,7 @@ class GitBackend(object):
             process.run('git checkout %s' % fl, verbose=False)
         except exceptions.CmdError, e:
             self.log.error("Problem reverting file %s: %s", fl, e)
-            sys.exit(1)
+            return 1
 
     def set_file_executable(self, fl):
         """
@@ -352,7 +351,7 @@ class GitBackend(object):
             answer = answer[0].upper()
             if answer == "A":
                 self.log.info("Aborting check")
-                sys.exit(1)
+                return 1
             elif answer == "D":
                 self.log.info("Deleting branch %s", branch)
                 process.run("git branch -D %s" % branch, verbose=False)
@@ -396,7 +395,7 @@ class GitBackend(object):
             process.run("git am -3 %s" % patch, verbose=False)
         except exceptions.CmdError, e:
             self.log.error("Failed to apply patch to the git repo: %s" % e)
-            sys.exit(1)
+            return 1
 
     def update(self):
         try:
