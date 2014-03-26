@@ -341,7 +341,7 @@ class GitBackend(object):
         try:
             process.run("git checkout -b %s" % branch,
                         verbose=False)
-        except exceptions.CmdError, exc:
+        except exceptions.CmdError:
             self.log.error("branch %s already exists!"
                            % branch)
             answer = utils.ask("What would you like to do?",
