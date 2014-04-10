@@ -19,7 +19,9 @@ from inspector import PathInspector
 
 log = logging.getLogger("inspektor.license")
 
-license_mapping = {'gplv2': 'LICENSE_SNIPPET_GPLV2'}
+license_mapping = {'gplv2_later': 'LICENSE_SNIPPET_GPLV2',
+                   'gplv2_strict': 'LICENSE_SNIPPET_GPLV2_STRICT'}
+default_license = 'gplv2_later'
 system_license_dir = os.path.join('/usr', 'share', 'inspektor', 'data')
 _root_dir = os.path.join(sys.modules[__name__].__file__, '..', '..')
 intree_license_dir = os.path.join(os.path.abspath(_root_dir), 'data')
@@ -102,8 +104,10 @@ def set_arguments(parser):
                           nargs='?',
                           default="")
     plicense.add_argument('--license', type=str,
-                          help='License type. Supported license types: %s' % license_mapping.keys(),
-                          default="gplv2")
+                          help=('License type. Supported license types: %s. '
+                                'Default: %s' %
+                                (license_mapping.keys(), default_license)),
+                          default="gplv2_later")
     plicense.add_argument('--copyright', type=str,
                           help='Copyright string. Ex: "Copyright (c) 2013-2014 FooCorp"',
                           default="")
