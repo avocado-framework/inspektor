@@ -33,10 +33,12 @@ Usage
 
 1) Go to the root of your project source code clone
 2) If you want to check code with pylint:
+
 ::
 
     inspekt lint
 3) If you want to check indentation:
+
 ::
 
     inspekt indent
