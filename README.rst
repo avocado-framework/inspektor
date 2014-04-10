@@ -8,13 +8,6 @@ to be developed, we noticed the same scripts had to be copied to each new
 project repo, creating a massive headache when we needed to update said
 scripts.
 
-Inspektor is supposed to be installed system wide, using the standard:
-
-::
-
-    python setup.py install
-
-
 Inspektor knows how to:
 
 1) Check code with the help of `pylint`.
@@ -27,6 +20,35 @@ Inspektor knows how to:
 
 This all assumes you're working on a version control checkout of your code.
 Currently inspektor knows how to handle subversion and git.
+
+Installing inspektor
+--------------------
+
+If there are no packages for your distro, you'll have to resort to good old:
+
+::
+
+    $ sudo python setup.py install
+
+Fedora
+~~~~~~
+
+Fedora users lmr's COPR:
+
+http://copr.fedoraproject.org/coprs/lmr/Autotest/
+
+Add the COPR repository, which, just for reference, on a Fedora 20 could be done through:
+
+::
+
+    $ sudo curl http://copr.fedoraproject.org/coprs/lmr/Autotest/repo/fedora-20-i386/lmr-Autotest-fedora-20-i386.repo > /etc/yum.repos.d/autotest.repo
+
+Users of Fedora 19 or Rawhide can use the other repo files available in the
+COPR web page. Now you can install it using:
+
+::
+
+    $ sudo yum install inspektor
 
 Usage
 -----
@@ -42,5 +64,15 @@ Usage
 ::
 
     inspekt indent
+4) If you want to check compliance to the PEP8:
+
+::
+
+    inspekt style
+5) If you want to check PR #123 for a project inside the autotest github area:
+
+::
+
+    inspekt github 123
 
 [1] http://autotest.github.io/
