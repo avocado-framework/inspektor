@@ -1,12 +1,14 @@
 Summary: Inspektor python project checker
 Name: inspektor
 Version: 0.1.5
-Release: 1%{?dist}
+Release: 3%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/lmr/inspektor
 Source: inspektor-%{version}.tar.gz
 BuildRequires: python2-devel
+BuildRequires: pylint > 1.0
+BuildRequires: python-autopep8
 BuildArch: noarch
 Requires: python, python-autopep8, pylint > 1.0
 
@@ -37,5 +39,9 @@ patch review for programs developed by the autotest project team.
 %{_datadir}/inspektor
 
 %changelog
+* Thu Apr 10 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.5-3
+- Fix autopep8 build dep
+* Thu Apr 10 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.5-2
+- Fix pylint build dep
 * Thu Apr 10 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.5-1
 - Created initial spec file
