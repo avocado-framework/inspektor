@@ -1,3 +1,17 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE for more details.
+#
+# Copyright: Red Hat 2013-2014
+# Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
+
 import os
 import stat
 
@@ -10,7 +24,7 @@ class PathInspector(object):
     def __init__(self, path):
         self.path = path
 
-    def _get_first_line(self):
+    def get_first_line(self):
         first_line = ""
         if os.path.isfile(self.path):
             checked_file = open(self.path, "r")
@@ -23,7 +37,7 @@ class PathInspector(object):
         return mode & stat.S_IXUSR
 
     def is_script(self, language=None):
-        first_line = self._get_first_line()
+        first_line = self.get_first_line()
         if first_line:
             if first_line.startswith(SHEBANG):
                 if language is None:
