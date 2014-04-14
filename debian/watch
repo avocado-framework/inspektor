@@ -1,0 +1,3 @@
+version=3
+
+https://github.com/autotest/inspektor/tags .*/(\d[\d\.]+)\.tar\.gz

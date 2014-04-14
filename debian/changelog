@@ -1,0 +1,12 @@
+inspektor (0.1.6) saucy; urgency=medium
+
+  * Automated (make builddeb) build.
+
+ -- Lucas Meneghel Rodrigues (lmr) <lookkas@gmail.com>  Mon, 14 Apr 2014 16:29:55 -0300
+
+inspektor (0.0.1ubuntu1) saucy; urgency=medium
+
+  * First build.
+
+ -- Lucas Meneghel Rodrigues (lmr) <lookkas@gmail.com>  Wed, 02 Apr 2014 13:39:36 -0300
+

@@ -1,0 +1,13 @@
+Source: inspektor
+Section: python
+Priority: optional
+Maintainer: Lucas Meneghel Rodrigues (lmr) <lookkas@gmail.com>
+Build-Depends: debhelper (>=7.0.50~), python-support (>= 0.6), cdbs (>= 0.4.49), python-autopep8, pylint
+Standards-Version: 3.8.4
+
+Package: inspektor
+Architecture: all
+Homepage: https://github.com/autotest/inspektor
+XB-Python-Version: ${python:Versions}
+Depends: ${misc:Depends}, ${python:Depends}, python-autopep8 (>= 0.9), pylint (>= 1.0)
+Description: Inspektor is a checker tool, that automates a number of static checks in a python project code.
