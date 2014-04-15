@@ -50,6 +50,20 @@ COPR web page. Now you can install it using:
 
     $ sudo yum install inspektor
 
+Ubuntu
+~~~~~~
+
+lmr's PPA:
+
+https://launchpad.net/~lmr/+archive/autotest
+
+Add the repos through the instructions on that page. Now you can install it
+using:
+
+::
+
+    $ sudo apt-get install inspektor
+
 Usage
 -----
 
