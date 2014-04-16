@@ -27,6 +27,4 @@ setup(name='inspektor',
                 'inspektor.utils'
                 ],
       scripts=['scripts/inspekt'],
-      data_files=[('/usr/share/inspektor/data', ['data/LICENSE_SNIPPET_GPLV2']),
-                  ('/usr/share/inspektor/data', ['data/LICENSE_SNIPPET_GPLV2_STRICT'])],
       )
