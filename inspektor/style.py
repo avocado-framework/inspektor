@@ -68,11 +68,14 @@ class StyleChecker(object):
             log.error('PEP8 check fail: %s', path)
             self.failed_paths.append(path)
             log.error('Trying to fix errors with autopep8')
-            opt_obj = autopep8.parse_args([path,
-                                           '--ignore',
-                                           self.ignored_errors,
-                                           '--in-place'])[0]
-            autopep8.fix_file(path, opt_obj)
+            try:
+                opt_obj = autopep8.parse_args([path,
+                                               '--ignore',
+                                               self.ignored_errors,
+                                               '--in-place'])[0]
+                autopep8.fix_file(path, opt_obj)
+            except Exception, details:
+                log.error('Not able to fix errors: %s', details)
         return runner.check_all() == 0
 
     def check(self, path):
