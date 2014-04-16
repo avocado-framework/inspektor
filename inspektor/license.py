@@ -14,35 +14,45 @@
 
 import logging
 import os
-import sys
 from inspector import PathInspector
 
 log = logging.getLogger("inspektor.license")
 
-license_mapping = {'gplv2_later': 'LICENSE_SNIPPET_GPLV2',
-                   'gplv2_strict': 'LICENSE_SNIPPET_GPLV2_STRICT'}
+LICENSE_SNIPPET_GPLV2 = """# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE for more details.
+"""
+
+LICENSE_SNIPPET_GPLV2_STRICT = """# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; specifically version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE for more details.
+"""
+
+license_mapping = {'gplv2_later': LICENSE_SNIPPET_GPLV2,
+                   'gplv2_strict': LICENSE_SNIPPET_GPLV2_STRICT}
 default_license = 'gplv2_later'
-system_license_dir = os.path.join('/usr', 'share', 'inspektor', 'data')
-_root_dir = os.path.join(sys.modules[__name__].__file__, '..', '..')
-intree_license_dir = os.path.join(os.path.abspath(_root_dir), 'data')
 
 
 class LicenseChecker(object):
 
-    def __init__(self, license_type='gplv2', cpyright="", author=""):
+    def __init__(self, license_type=default_license, cpyright="", author=""):
         self.failed_paths = []
-        license_snippet = license_mapping[license_type]
-        system_snippet = os.path.join(system_license_dir, license_snippet)
-        intree_snippet = os.path.join(intree_license_dir, license_snippet)
 
-        if os.path.isfile(system_snippet):
-            self.snippet_path = system_snippet
-        else:
-            self.snippet_path = intree_snippet
-
-        with open(self.snippet_path, 'r') as snippet_file_obj:
-            self.license_contents = snippet_file_obj.read()
-            self.base_license_contents = self.license_contents
+        self.license_contents = license_mapping[license_type]
+        self.base_license_contents = self.license_contents
 
         if cpyright:
             self.license_contents += "#\n"
