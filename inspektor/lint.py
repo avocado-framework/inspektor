@@ -71,11 +71,18 @@ class Linter(object):
         inspector = PathInspector(path)
         if not inspector.is_python():
             return True
-        runner = Run(self.get_opts() + [path], exit=False)
-        if runner.linter.msg_status != 0:
-            log.error('Pylint check fail: %s', path)
+
+        try:
+            runner = Run(self.get_opts() + [path], exit=False)
+            if runner.linter.msg_status != 0:
+                log.error('Pylint check fail: %s', path)
+                self.failed_paths.append(path)
+            return runner.linter.msg_status == 0
+        except Exception, details:
+            log.error('Pylint check fail: %s (pylint exception: %s)',
+                      path, details)
             self.failed_paths.append(path)
-        return runner.linter.msg_status == 0
+            return False
 
     def check(self, path):
         if os.path.isfile(path):
