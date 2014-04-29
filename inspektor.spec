@@ -5,7 +5,7 @@ Release: 1%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/lmr/inspektor
-Source: inspektor-%{version}.tar.gz
+Source: inspektor-%{inspektorversion}.tar.gz
 BuildRequires: python2-devel
 BuildRequires: pylint > 1.0
 BuildRequires: python-autopep8
