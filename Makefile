@@ -2,7 +2,7 @@ PYTHON=`which python`
 DESTDIR=/
 BUILDIR=$(CURDIR)/debian/inspektor
 PROJECT=inspektor
-VERSION=0.1.6
+VERSION=`$(CURDIR)/inspektor/version.py`
 
 all:
 	@echo "make source - Create source package"
@@ -10,6 +10,7 @@ all:
 	@echo "make build-deb-src - Generate a source debian package"
 	@echo "make build-deb-bin - Generate a binary debian package"
 	@echo "make build-deb-all - Generate both source and binary debian packages"
+	@echo "make build-rpm-all - Generate both source and binary RPMs"
 	@echo "make clean - Get rid of scratch and byte files"
 
 source:
@@ -37,8 +38,14 @@ build-deb-all: prepare-source
 	# build both source and binary packages
 	dpkg-buildpackage -i -I -rfakeroot
 
+build-rpm-all: source
+	rpmbuild --define '_topdir %{getenv:PWD}' \
+		 --define '_sourcedir %{_topdir}/dist/' \
+		 --define "inspektorversion $(VERSION)" \
+		 -ba inspektor.spec
+
 clean:
 	$(PYTHON) setup.py clean
-	$(MAKE) -f $(CURDIR)/debian/rules clean
-	rm -rf build/ MANIFEST
+	$(MAKE) -f $(CURDIR)/debian/rules clean || true
+	rm -rf build/ MANIFEST BUILD BUILDROOT SPECS RPMS SRPMS
 	find . -name '*.pyc' -delete
