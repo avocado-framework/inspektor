@@ -1,7 +1,7 @@
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/lmr/inspektor
@@ -39,6 +39,8 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Tue Apr 29 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.9-2
+- Fix error in pkg spec that was preventing build on COPR
 * Tue Apr 29 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.9-1
 - New upstream version
 * Thu Apr 10 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.5-3
