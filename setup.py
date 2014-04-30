@@ -21,7 +21,7 @@ setup(name='inspektor',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lmr@redhat.com',
-      url='http://autotest.github.com',
+      url='https://github.com/autotest/inspektor',
       packages=['inspektor',
                 'inspektor.cli',
                 'inspektor.utils'
