@@ -1,3 +1,9 @@
+inspektor (0.1.9) saucy; urgency=medium
+
+  * Automated (make builddeb) build.
+
+ -- Lucas Meneghel Rodrigues (lmr) <lookkas@gmail.com>  Tue, 29 Apr 2014 22:50:41 -0300
+
 inspektor (0.1.6) saucy; urgency=medium
 
   * Automated (make builddeb) build.
