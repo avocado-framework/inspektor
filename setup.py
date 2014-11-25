@@ -26,5 +26,7 @@ setup(name='inspektor',
                 'inspektor.cli',
                 'inspektor.utils'
                 ],
+      install_requires=['pylint>=1.3.0',
+                        'autopep8>=1.0.0'],
       scripts=['scripts/inspekt'],
       )
