@@ -14,8 +14,6 @@
 
 from distutils.core import setup
 
-import inspektor.version
-
 setup(name='inspektor',
       version='0.1.11',
       description='Inspektor code checker',
