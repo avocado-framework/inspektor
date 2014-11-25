@@ -17,7 +17,7 @@ from distutils.core import setup
 import inspektor.version
 
 setup(name='inspektor',
-      version=inspektor.version.VERSION,
+      version=0.1.11,
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lmr@redhat.com',
