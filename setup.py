@@ -15,7 +15,7 @@
 from distutils.core import setup
 
 setup(name='inspektor',
-      version='0.1.11',
+      version='0.1.12',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lmr@redhat.com',
