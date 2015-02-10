@@ -28,7 +28,7 @@ class StyleChecker(object):
 
     def __init__(self, verbose=True):
         self.verbose = verbose
-        self.ignored_errors = 'E501,E265,W601'
+        self.ignored_errors = 'E501,E265,W601,E402'
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
