@@ -28,7 +28,7 @@ class StyleChecker(object):
 
     def __init__(self, verbose=True):
         self.verbose = verbose
-        self.ignored_errors = 'E501,E265,W601'
+        self.ignored_errors = 'E501,E265,W601,E402'
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
@@ -64,7 +64,8 @@ class StyleChecker(object):
         ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
         opt_obj.ignore = tuple(set(ignore_list))
         runner = pep8.Checker(filename=path, options=opt_obj)
-        if runner.check_all() != 0:
+        status = runner.check_all()
+        if status != 0:
             log.error('PEP8 check fail: %s', path)
             self.failed_paths.append(path)
             log.error('Trying to fix errors with autopep8')
@@ -76,7 +77,7 @@ class StyleChecker(object):
                 autopep8.fix_file(path, opt_obj)
             except Exception, details:
                 log.error('Not able to fix errors: %s', details)
-        return runner.check_all() == 0
+        return status == 0
 
     def check(self, path):
         if os.path.isfile(path):
