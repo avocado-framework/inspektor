@@ -91,19 +91,22 @@ def set_arguments(parser):
                                help='check code compliance to PEP8')
     pstyle.add_argument('path', type=str,
                         help='Path to check (empty for full tree check)',
-                        nargs='?',
-                        default="")
+                        nargs='*',
+                        default=None)
     pstyle.set_defaults(func=run_style)
 
 
 def run_style(args):
-    path = args.path
-    if not path:
-        path = os.getcwd()
+    paths = args.path
+    if not paths:
+        paths = [os.getcwd()]
 
     style_checker = StyleChecker(verbose=args.verbose)
 
-    if style_checker.check(path):
+    status = True
+    for path in paths:
+        status &= style_checker.check(path)
+    if status:
         log.info("PEP8 compliance check PASS")
         return 0
     else:

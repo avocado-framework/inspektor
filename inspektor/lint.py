@@ -95,19 +95,22 @@ def set_arguments(parser):
     plint = parser.add_parser('lint', help='check code with pylint')
     plint.add_argument('path', type=str,
                        help='Path to check (empty for full tree check)',
-                       nargs='?',
-                       default="")
+                       nargs='*',
+                       default=None)
     plint.set_defaults(func=run_lint)
 
 
 def run_lint(args):
-    path = args.path
-    if not path:
-        path = os.getcwd()
+    paths = args.path
+    if not paths:
+        paths = [os.getcwd()]
 
     linter = Linter(verbose=args.verbose)
 
-    if linter.check(path):
+    status = True
+    for path in paths:
+        status &= linter.check(path)
+    if status:
         log.info("Syntax check PASS")
         return 0
     else:

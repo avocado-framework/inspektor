@@ -239,19 +239,22 @@ def set_arguments(parser):
     pindent = parser.add_parser('indent', help='check code indentation')
     pindent.add_argument('path', type=str,
                          help='Path to check (empty for full tree check)',
-                         nargs='?',
-                         default="")
+                         nargs='*',
+                         default=None)
     pindent.set_defaults(func=run_reindent)
 
 
 def run_reindent(args):
-    path = args.path
-    if not path:
-        path = os.getcwd()
+    paths = args.path
+    if not paths:
+        paths = [os.getcwd()]
 
     reindenter = Reindenter(verbose=args.verbose)
 
-    if reindenter.check(path):
+    status = True
+    for path in paths:
+        status &= reindenter.check(path)
+    if status:
         log.info("Indentation check PASS")
         return 0
     else:
