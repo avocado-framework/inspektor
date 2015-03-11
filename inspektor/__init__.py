@@ -85,4 +85,12 @@ DEFAULT_LOGGING = {
 }
 
 
-logging.config.dictConfig(DEFAULT_LOGGING)
+from logging import config
+
+if not hasattr(config, 'dictConfig'):
+    from logutils import dictconfig
+    cfg_func = dictconfig.dictConfig
+else:
+    cfg_func = config.dictConfig
+
+cfg_func(DEFAULT_LOGGING)
