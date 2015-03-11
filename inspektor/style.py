@@ -17,7 +17,12 @@ import os
 import sys
 
 import pep8
-import autopep8
+
+try:
+    import autopep8
+    AUTOPEP8_CAPABLE = True
+except ImportError:
+    AUTOPEP8_CAPABLE = False
 
 from inspector import PathInspector
 
@@ -60,23 +65,30 @@ class StyleChecker(object):
         inspector = PathInspector(path)
         if not inspector.is_python():
             return True
-        opt_obj = pep8.StyleGuide().options
-        ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
-        opt_obj.ignore = tuple(set(ignore_list))
-        runner = pep8.Checker(filename=path, options=opt_obj)
+        try:
+            opt_obj = pep8.StyleGuide().options
+            ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
+            opt_obj.ignore = tuple(set(ignore_list))
+            # pylint: disable=E1123
+            runner = pep8.Checker(filename=path, options=opt_obj)
+        except:
+            opts = ['--ignore'] + self.ignored_errors.split(',')
+            pep8.process_options(opts)
+            runner = pep8.Checker(filename=path)
         status = runner.check_all()
         if status != 0:
             log.error('PEP8 check fail: %s', path)
             self.failed_paths.append(path)
-            log.error('Trying to fix errors with autopep8')
-            try:
-                opt_obj = autopep8.parse_args([path,
-                                               '--ignore',
-                                               self.ignored_errors,
-                                               '--in-place'])
-                autopep8.fix_file(path, opt_obj)
-            except Exception, details:
-                log.error('Not able to fix errors: %s', details)
+            if AUTOPEP8_CAPABLE:
+                log.error('Trying to fix errors with autopep8')
+                try:
+                    opt_obj = autopep8.parse_args([path,
+                                                   '--ignore',
+                                                   self.ignored_errors,
+                                                   '--in-place'])
+                    autopep8.fix_file(path, opt_obj)
+                except Exception, details:
+                    log.error('Not able to fix errors: %s', details)
         return status == 0
 
     def check(self, path):
