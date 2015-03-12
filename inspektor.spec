@@ -1,4 +1,4 @@
-%global inspektorversion %(%{getenv:PWD}/inspektor/version.py)
+%global inspektorversion 0.1.15
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
