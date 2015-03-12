@@ -2,7 +2,7 @@
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
-Release: 5%{?dist}
+Release: 1%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/autotest/inspektor
