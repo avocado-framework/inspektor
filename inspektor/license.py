@@ -85,7 +85,7 @@ class LicenseChecker(object):
             if first_line is not None:
                 content = content[1:]
             content = "".join(content)
-            if not self.base_license_contents in content:
+            if self.base_license_contents not in content:
                 new_content = ""
                 if first_line is not None:
                     new_content += first_line

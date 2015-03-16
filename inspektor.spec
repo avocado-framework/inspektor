@@ -1,8 +1,8 @@
-%global inspektorversion %(%{getenv:PWD}/inspektor/version.py)
+%global inspektorversion 0.1.15
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
-Release: 5%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/autotest/inspektor
@@ -40,6 +40,10 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Wed Mar 11 2015 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.15-2
+- Fix build on COPR
+* Wed Mar 11 2015 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.15-1
+- New upstream version 0.1.15
 * Tue Apr 29 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.9-5
 - Moved macro definitions to rpm spec file, fix build on COPR
 * Tue Apr 29 2014 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.9-4
