@@ -13,6 +13,12 @@
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
 from distutils.core import setup
+import sys
+
+if sys.version_info[:2] == (2, 6):
+    REQUIRES = ['pep8>=1.6.2', 'pylint<1.4', 'logutils>=0.3.3']
+else:
+    REQUIRES = ['pep8>=1.6.2', 'pylint>=1.3']
 
 setup(name='inspektor',
       version='0.1.15',
@@ -24,7 +30,6 @@ setup(name='inspektor',
                 'inspektor.cli',
                 'inspektor.utils'
                 ],
-      install_requires=['pylint>=1.3.0',
-                        'autopep8>=1.0.0'],
+      install_requires=REQUIRES,
       scripts=['scripts/inspekt'],
       )
