@@ -2,16 +2,20 @@
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2
 Group: Development/Tools
 URL: https://github.com/autotest/inspektor
 Source: inspektor-%{inspektorversion}.tar.gz
-BuildRequires: python2-devel
-BuildRequires: pylint > 1.0
-BuildRequires: python-autopep8
 BuildArch: noarch
-Requires: python, python-autopep8, pylint > 1.0
+
+%if "%{?dist}" == ".el6"
+Requires: python, pylint < 1.4, python-pep8, python-logutils
+BuildRequires: python2-devel, pylint < 1.4, python-pep8, python-logutils
+%else
+Requires: python, pylint >= 1.3, python-pep8, python-logutils
+BuildRequires: python2-devel, pylint >= 1.3, python-pep8, python-logutils
+%endif
 
 %description
 Inspektor is a checker tool, that tries to automate a number of checks in a
@@ -40,6 +44,8 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Thu Mar 19 2015 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.15-3
+- Add conditional build dependencies
 * Wed Mar 11 2015 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.15-2
 - Fix build on COPR
 * Wed Mar 11 2015 Lucas Meneghel Rodrigues <lmr@redhat.com> - 0.1.15-1
