@@ -14,7 +14,7 @@ Requires: python, pylint < 1.4, python-pep8, python-logutils
 BuildRequires: python2-devel, pylint < 1.4, python-pep8, python-logutils
 %else
 Requires: python, pylint >= 1.3, python-pep8, python-logutils
-BuildRequires: python2-devel, pylint >= 1.3, python-pep8, python-logutils
+BuildRequires: python2-devel, pylint >= 1.3, python-pep8
 %endif
 
 %description
