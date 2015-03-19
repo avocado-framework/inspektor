@@ -42,6 +42,9 @@ build-rpm-all: source
 	rpmbuild --define '_topdir %{getenv:PWD}' \
 		 -ba inspektor.spec
 
+check:
+	selftests/checkall
+
 clean:
 	$(PYTHON) setup.py clean
 	$(MAKE) -f $(CURDIR)/debian/rules clean || true
