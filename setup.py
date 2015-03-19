@@ -12,6 +12,7 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
+# pylint: disable=E0611
 from distutils.core import setup
 import sys
 
