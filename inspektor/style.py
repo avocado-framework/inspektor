@@ -63,6 +63,8 @@ class StyleChecker(object):
                  find problems, or path is not a python module or script.
         """
         inspector = PathInspector(path)
+        if inspector.is_toignore():
+            return True
         if not inspector.is_python():
             return True
         try:
