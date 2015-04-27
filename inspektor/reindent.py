@@ -204,6 +204,8 @@ class Reindenter(object):
                  script.
         """
         inspector = PathInspector(path)
+        if inspector.is_toignore():
+            return True
         if not inspector.is_python():
             return True
         f = open(path)
