@@ -17,6 +17,7 @@ import stat
 
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
+IGNORE_SUFFIX = ('~', '#', '.swp', '.pyc', '.pyo', '.o')
 
 
 class PathInspector(object):

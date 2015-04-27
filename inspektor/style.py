@@ -25,6 +25,7 @@ except ImportError:
     AUTOPEP8_CAPABLE = False
 
 from inspector import PathInspector
+from inspector import IGNORE_SUFFIX
 
 log = logging.getLogger("inspektor.style")
 
@@ -48,6 +49,10 @@ class StyleChecker(object):
         :param path: Path to a directory.
         """
         def visit(arg, dirname, filenames):
+            for filename in filenames:
+                if filename.endswith(IGNORE_SUFFIX):
+                    log.debug("Ignoring '%s' due filename suffix", filename)
+                    continue
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
