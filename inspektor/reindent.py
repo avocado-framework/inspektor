@@ -17,6 +17,7 @@ import tokenize
 import logging
 
 from inspector import PathInspector
+from inspector import IGNORE_PREFIX
 
 log = logging.getLogger("inspektor.reindent")
 
@@ -222,6 +223,10 @@ class Reindenter(object):
 
     def check_dir(self, path):
         def visit(arg, dirname, filenames):
+            for filename in filenames:
+                if filename.endswith(IGNORE_PREFIX):
+                    log.debug("Ignoring '%s' due filename prefix", filename)
+                    continue
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
