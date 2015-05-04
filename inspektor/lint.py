@@ -19,6 +19,7 @@ import sys
 from pylint.lint import Run
 
 from inspector import PathInspector
+from inspector import IGNORE_SUFFIX
 
 log = logging.getLogger("inspektor.lint")
 
@@ -55,6 +56,9 @@ class Linter(object):
         """
         def visit(arg, dirname, filenames):
             for filename in filenames:
+                if filename.endswith(IGNORE_SUFFIX):
+                    log.debug("Ignoring '%s' due filename suffix", filename)
+                    continue
                 self.check_file(os.path.join(dirname, filename))
 
         os.path.walk(path, visit, None)
