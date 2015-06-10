@@ -71,6 +71,8 @@ class LicenseChecker(object):
 
     def check_file(self, path):
         inspector = PathInspector(path)
+        if inspector.is_toignore():
+            return True
         # Don't put license info in empty __init__.py files.
         if not inspector.is_python() or inspector.is_empty():
             return True

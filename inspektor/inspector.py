@@ -14,6 +14,7 @@
 
 import os
 import stat
+import fnmatch
 
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
@@ -23,6 +24,21 @@ class PathInspector(object):
 
     def __init__(self, path):
         self.path = path
+        self.ignore = ['*~', '*#', '*.swp', '*.py?', '*.o']
+        self._read_gitignore()
+
+    def _read_gitignore(self):
+        config_ignore = '{home}/.config/git/ignore'.format(
+            home=os.environ.get('HOME'))
+        git_dir_ignore = '{gitdir}/.config/git/ignore'.format(
+            gitdir=os.environ.get('GIT_DIR'))
+        dot_ignore = '.gitignore'
+        for ign in (dot_ignore, git_dir_ignore, config_ignore):
+            if os.path.isfile(ign):
+                with open(ign) as f:
+                    self.ignore.extend([x.strip() for x in f.readlines()])
+                break
+        self.ignore = set(self.ignore)
 
     def get_first_line(self):
         first_line = ""
@@ -56,3 +72,11 @@ class PathInspector(object):
                 return True
 
         return self.is_script(language='python')
+
+    def is_toignore(self):
+        for pat in self.ignore:
+            if fnmatch.fnmatch(self.path, pat):
+                return True
+            if self.path.startswith(os.path.abspath(pat)):
+                return True
+        return False
