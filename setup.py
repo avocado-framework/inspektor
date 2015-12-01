@@ -17,7 +17,7 @@ from distutils.core import setup
 import sys
 
 if sys.version_info[:2] == (2, 6):
-    REQUIRES = ['pep8>=1.6.2', 'pylint<1.4', 'logutils>=0.3.3']
+    REQUIRES = ['pep8>=1.6.2', 'pylint<=1.3', 'logutils>=0.3.3']
 else:
     REQUIRES = ['pep8>=1.6.2', 'pylint>=1.3']
 
