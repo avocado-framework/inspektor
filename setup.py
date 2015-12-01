@@ -13,7 +13,7 @@
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
 # pylint: disable=E0611
-from distutils.core import setup
+from setuptools import setup
 import sys
 
 if sys.version_info[:2] == (2, 6):
