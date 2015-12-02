@@ -15,8 +15,10 @@
 import os
 import tokenize
 import logging
+import sys
 
 from inspector import PathInspector
+from . import stacktrace
 
 log = logging.getLogger("inspektor.reindent")
 
@@ -186,13 +188,9 @@ class Run(object):
 
 class Reindenter(object):
 
-    def __init__(self, verbose=True):
-        self.log = logging.getLogger('inspektor.reindent')
-        self.verbose = verbose
+    def __init__(self, args):
+        self.args = args
         self.failed_paths = []
-
-    def set_verbose(self):
-        self.verbose = True
 
     def check_file(self, path):
         """
@@ -211,16 +209,26 @@ class Reindenter(object):
         f = open(path)
         r = Run(f)
         f.close()
-        if r.run():
-            f = open(path, "w")
-            r.write(f)
-            f.close()
-            if self.verbose:
-                self.log.info("Reindented file %s", path)
-            self.failed_paths.append(path)
+        try:
+            if r.run():
+                log.error('Indentation check fail  : %s', path)
+                self.failed_paths.append(path)
+                if self.args.fix:
+                    f = open(path, "w")
+                    r.write(f)
+                    f.close()
+                    log.info('FIX OK')
+                return False
+            else:
+                return True
+        except IndentationError:
+            log.error("Indentation check fail  : %s", path)
+            log.error("Automated fix impossible: %s", path)
+            log.error("Look at the stack trace "
+                      "below and fix it manually")
+            exc_info = sys.exc_info()
+            stacktrace.log_exc_info(exc_info, 'inspektor.reindent')
             return False
-        else:
-            return True
 
     def check_dir(self, path):
         def visit(arg, dirname, filenames):
@@ -243,6 +251,8 @@ def set_arguments(parser):
                          help='Path to check (empty for full tree check)',
                          nargs='*',
                          default=None)
+    pindent.add_argument('--fix', action='store_true', default=False,
+                         help='Fix any indentation problems found')
     pindent.set_defaults(func=run_reindent)
 
 
@@ -251,7 +261,7 @@ def run_reindent(args):
     if not paths:
         paths = [os.getcwd()]
 
-    reindenter = Reindenter(verbose=args.verbose)
+    reindenter = Reindenter(args)
 
     status = True
     for path in paths:
