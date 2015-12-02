@@ -40,7 +40,10 @@ class InspektorApp(object):
                                            '(alters behavior of the lint '
                                            'subcommand)'),
                                      dest='verbose')
-
+        self.arg_parser.add_argument('--exclude', type=str,
+                                     help='Quoted string containing paths or '
+                                          'patterns to be excluded from '
+                                          'checking, comma separated')
         subparsers = self.arg_parser.add_subparsers(title='subcommands',
                                                     description='valid subcommands',
                                                     help='subcommand help')

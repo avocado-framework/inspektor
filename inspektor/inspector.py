@@ -22,9 +22,12 @@ SHEBANG = '#!'
 
 class PathInspector(object):
 
-    def __init__(self, path):
+    def __init__(self, path, args):
+        self.args = args
         self.path = path
         self.ignore = ['*~', '*#', '*.swp', '*.py?', '*.o']
+        if self.args.exclude:
+            self.ignore += self.args.exclude.split(',')
         self._read_gitignore()
 
     def _read_gitignore(self):

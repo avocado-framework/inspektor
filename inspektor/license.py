@@ -48,7 +48,11 @@ default_license = 'gplv2_later'
 
 class LicenseChecker(object):
 
-    def __init__(self, license_type=default_license, cpyright="", author=""):
+    def __init__(self, args):
+        license_type = args.license
+        cpyright = args.copyright
+        author = args.author
+        self.args = args
         self.failed_paths = []
 
         self.license_contents = license_mapping[license_type]
@@ -70,7 +74,7 @@ class LicenseChecker(object):
         return not self.failed_paths
 
     def check_file(self, path):
-        inspector = PathInspector(path)
+        inspector = PathInspector(path=path, args=self.args)
         if inspector.is_toignore():
             return True
         # Don't put license info in empty __init__.py files.
@@ -132,15 +136,11 @@ def set_arguments(parser):
 
 def run_license(args):
     path = args.path
-    license_type = args.license
-    cpyright = args.copyright
-    author = args.author
 
     if not path:
         path = os.getcwd()
 
-    checker = LicenseChecker(license_type=license_type,
-                             cpyright=cpyright, author=author)
+    checker = LicenseChecker(args)
 
     if checker.check(path):
         log.info("License check PASS")
