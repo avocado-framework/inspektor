@@ -25,21 +25,18 @@ except ImportError:
     AUTOPEP8_CAPABLE = False
 
 from inspector import PathInspector
+from . import stacktrace
 
 log = logging.getLogger("inspektor.style")
 
 
 class StyleChecker(object):
 
-    def __init__(self, verbose=True):
-        self.verbose = verbose
-        self.ignored_errors = 'E501,E265,W601,E402'
+    def __init__(self, args):
+        self.args = args
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
-
-    def set_verbose(self):
-        self.verbose = True
 
     def check_dir(self, path):
         """
@@ -69,28 +66,42 @@ class StyleChecker(object):
             return True
         try:
             opt_obj = pep8.StyleGuide().options
-            ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
+            ignore_list = self.args.disable.split(',') + list(opt_obj.ignore)
             opt_obj.ignore = tuple(set(ignore_list))
             # pylint: disable=E1123
             runner = pep8.Checker(filename=path, options=opt_obj)
-        except:
-            opts = ['--ignore'] + self.ignored_errors.split(',')
+        except Exception:
+            opts = ['--ignore'] + self.args.disable.split(',')
             pep8.process_options(opts)
             runner = pep8.Checker(filename=path)
-        status = runner.check_all()
+        try:
+            status = runner.check_all()
+        except:
+            log.error('Unexpected exception while checking %s', path)
+            exc_info = sys.exc_info()
+            stacktrace.log_exc_info(exc_info, 'inspektor.style')
+            status = 1
+
         if status != 0:
             log.error('PEP8 check fail: %s', path)
             self.failed_paths.append(path)
             if AUTOPEP8_CAPABLE:
-                log.error('Trying to fix errors with autopep8')
-                try:
-                    opt_obj = autopep8.parse_args([path,
-                                                   '--ignore',
-                                                   self.ignored_errors,
-                                                   '--in-place'])
-                    autopep8.fix_file(path, opt_obj)
-                except Exception, details:
-                    log.error('Not able to fix errors: %s', details)
+                if self.args.fix:
+                    log.info('Trying to fix errors with autopep8')
+                    try:
+                        auto_args = [path, '--in-place',
+                                     ('--max-line-length=%s' %
+                                      self.args.max_line_length)]
+                        if self.args.disable:
+                            auto_args.append("--ignore='%s'" %
+                                             self.args.disable)
+                        opt_obj = autopep8.parse_args(auto_args)
+                        autopep8.fix_file(path, opt_obj)
+                    except Exception:
+                        log.error('Unable to fix errors')
+                        exc_info = sys.exc_info()
+                        stacktrace.log_exc_info(exc_info, 'inspektor.style')
+
         return status == 0
 
     def check(self, path):
@@ -107,6 +118,14 @@ def set_arguments(parser):
                         help='Path to check (empty for full tree check)',
                         nargs='*',
                         default=None)
+    pstyle.add_argument('--disable', type=str,
+                        help='Disable the pep8 errors. Default: %(default)s',
+                        default='E501,E265,W601,E402')
+    pstyle.add_argument('--fix', action='store_true', default=False,
+                        help='Fix any style problems found (with autopep8)')
+    pstyle.add_argument('--max-line-length', type=int, default=79,
+                        help=('set maximum allowed line length. Default: '
+                              '%(default)s'))
     pstyle.set_defaults(func=run_style)
 
 
@@ -115,7 +134,7 @@ def run_style(args):
     if not paths:
         paths = [os.getcwd()]
 
-    style_checker = StyleChecker(verbose=args.verbose)
+    style_checker = StyleChecker(args)
 
     status = True
     for path in paths:
