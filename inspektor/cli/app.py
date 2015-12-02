@@ -26,6 +26,8 @@ from inspektor import license
 
 log = logging.getLogger("inspektor.app")
 
+ERROR_INTERRUPTED = 3
+
 
 class InspektorApp(object):
 
@@ -55,4 +57,8 @@ class InspektorApp(object):
         self.args = self.arg_parser.parse_args()
 
     def run(self):
-        return self.args.func(self.args)
+        try:
+            return self.args.func(self.args)
+        except KeyboardInterrupt:
+            log.error('User pressed Ctrl+C, exiting...')
+            return ERROR_INTERRUPTED
