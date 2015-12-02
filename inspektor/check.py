@@ -64,8 +64,8 @@ class FileChecker(object):
         :param confirm: Whether to answer yes to all questions asked without
                 prompting the user.
         """
-        self.linter = lint.Linter(verbose=False)
-        self.indenter = reindent.Reindenter(verbose=False)
+        self.linter = lint.Linter()
+        self.indenter = reindent.Reindenter()
         self.style_checker = style.StyleChecker()
         self.vcs = vcs.VCS()
 
