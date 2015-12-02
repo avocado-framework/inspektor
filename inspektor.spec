@@ -1,4 +1,4 @@
-%global inspektorversion 0.1.15
+%global inspektorversion 0.1.19
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}

@@ -14,7 +14,7 @@ all:
 	@echo "make clean - Get rid of scratch and byte files"
 
 source:
-	$(PYTHON) setup.py sdist $(COMPILE) --dist-dir=SOURCES --prune
+	$(PYTHON) setup.py sdist $(COMPILE) --dist-dir=SOURCES
 
 install:
 	$(PYTHON) setup.py install --root $(DESTDIR) $(COMPILE)
