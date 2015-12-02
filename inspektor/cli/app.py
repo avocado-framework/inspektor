@@ -36,7 +36,9 @@ class InspektorApp(object):
     def __init__(self):
         self.arg_parser = ArgumentParser(description='Inspektor code check')
         self.arg_parser.add_argument('-v', '--verbose', action='store_true',
-                                     help='print extra debug messages',
+                                     help=('print extra debug messages '
+                                           '(alters behavior of the lint '
+                                           'subcommand)'),
                                      dest='verbose')
 
         subparsers = self.arg_parser.add_subparsers(title='subcommands',

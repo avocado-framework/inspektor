@@ -25,27 +25,42 @@ log = logging.getLogger("inspektor.lint")
 
 class Linter(object):
 
-    def __init__(self, verbose=True):
-        self.verbose = verbose
-        self.ignored_errors = 'E1002,E1101,E1103,E1120,F0401,I0011'
+    def __init__(self, args):
+        assert args.disable is not None
+        assert args.enable is not None
+        self.args = args
+        self.verbose = args.verbose
+        self.ignored_errors = args.disable
+        self.enabled_errors = args.enable
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
+        if not self.verbose:
+            log.info('Pylint disabled: %s' % self.args.disable)
+            log.info('Pylint enabled : %s' % self.args.enable)
+        else:
+            log.info('Verbose mode, no disable/enable, full reports')
 
     def set_verbose(self):
         self.verbose = True
 
     def get_opts(self):
         """
-        If VERBOSE is set, show all complaints. If not, only errors.
+        If VERBOSE is set, show pylint reports. If not, only an issue summary.
         """
+        pylint_args = ['--rcfile=/dev/null',
+                       '--good-names=i,j,k,Run,_,vm',
+                       ('--msg-template='
+                        '"{msg_id}:{line:3d},{column}: {obj}: {msg}"')]
+
         if not self.verbose:
-            return ['--disable=W,R,C,%s' % self.ignored_errors,
-                    '--reports=no', '--rcfile=/dev/null',
-                    '--good-names=i,j,k,Run,_,vm',
-                    '--msg-template="{msg_id}:{line:3d},{column}: {obj}: {msg}"']
-        else:
-            return []
+            if self.args.disable:
+                pylint_args.append('--disable=%s' % self.args.disable)
+            if self.args.enable:
+                pylint_args.append('--enable=%s' % self.args.enable)
+            pylint_args.append('--reports=no')
+
+        return pylint_args
 
     def check_dir(self, path):
         """
@@ -99,6 +114,14 @@ def set_arguments(parser):
                        help='Path to check (empty for full tree check)',
                        nargs='*',
                        default=None)
+    plint.add_argument('--disable', type=str,
+                       help='Disable the pylint errors. Default: %(default)s',
+                       default='C,E,R,W,F0401,I0011')
+    plint.add_argument('--enable', type=str,
+                       help=('Enable the pylint errors '
+                             '(takes place after disabled items are '
+                             'processed). Default: %(default)s'),
+                       default='W0611')
     plint.set_defaults(func=run_lint)
 
 
@@ -107,7 +130,7 @@ def run_lint(args):
     if not paths:
         paths = [os.getcwd()]
 
-    linter = Linter(verbose=args.verbose)
+    linter = Linter(args)
 
     status = True
     for path in paths:
