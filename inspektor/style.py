@@ -37,6 +37,7 @@ class StyleChecker(object):
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
+        log.info('PEP8 disabled: %s' % self.args.disable)
 
     def check_dir(self, path):
         """
