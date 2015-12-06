@@ -134,7 +134,9 @@ def run_lint(args):
 
     status = True
     for path in paths:
-        status &= linter.check(path)
+        lint_path = linter.check(path)
+        if not lint_path:
+            status = False
     if status:
         log.info("Syntax check PASS")
         return 0
