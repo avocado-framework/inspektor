@@ -243,6 +243,9 @@ class Reindenter(object):
             return self.check_file(path)
         elif os.path.isdir(path):
             return self.check_dir(path)
+        else:
+            log.warning("Invalid location '%s'", path)
+            return False
 
 
 def set_arguments(parser):
