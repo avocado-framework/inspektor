@@ -36,8 +36,8 @@ class Linter(object):
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
         if not self.verbose:
-            log.info('Pylint disabled: %s' % self.args.disable)
-            log.info('Pylint enabled : %s' % self.args.enable)
+            log.info('Pylint disabled: %s' % self.ignored_errors)
+            log.info('Pylint enabled : %s' % self.enabled_errors)
         else:
             log.info('Verbose mode, no disable/enable, full reports')
 
@@ -55,9 +55,9 @@ class Linter(object):
 
         if not self.verbose:
             if self.args.disable:
-                pylint_args.append('--disable=%s' % self.args.disable)
+                pylint_args.append('--disable=%s' % self.ignored_errors)
             if self.args.enable:
-                pylint_args.append('--enable=%s' % self.args.enable)
+                pylint_args.append('--enable=%s' % self.enabled_errors)
             pylint_args.append('--reports=no')
 
         return pylint_args

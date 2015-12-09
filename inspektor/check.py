@@ -55,7 +55,7 @@ class FileChecker(object):
     and eventually applying solutions when all possible.
     """
 
-    def __init__(self):
+    def __init__(self, args):
         """
         Class constructor, sets the file checkers.
 
@@ -64,9 +64,14 @@ class FileChecker(object):
         :param confirm: Whether to answer yes to all questions asked without
                 prompting the user.
         """
-        self.linter = lint.Linter()
-        self.indenter = reindent.Reindenter()
-        self.style_checker = style.StyleChecker()
+        assert args.disable is not None
+        assert args.pep8_disable is not None
+        self.args = args
+        self.linter = lint.Linter(self.args)
+        self.indenter = reindent.Reindenter(self.args)
+        # Tweak --disable option for StyleChecker
+        self.args.disable = self.args.pep8_disable
+        self.style_checker = style.StyleChecker(self.args)
         self.vcs = vcs.VCS()
 
     def _check_indent(self, path):
@@ -106,7 +111,7 @@ class FileChecker(object):
         result = True
         if os.path.isdir(path):
             return result
-        path_inspector = inspector.PathInspector(path)
+        path_inspector = inspector.PathInspector(path, self.args)
         path_is_script = path_inspector.is_script()
         path_is_exec = path_inspector.has_exec_permission()
         if path_is_script:
@@ -132,8 +137,8 @@ class FileChecker(object):
 
 class PatchChecker(FileChecker):
 
-    def __init__(self, patch=None, patchwork_id=None, github_id=None):
-        FileChecker.__init__(self)
+    def __init__(self, args, patch=None, patchwork_id=None, github_id=None):
+        FileChecker.__init__(self, args)
         self.base_dir = TMP_FILE_DIR
 
         if patch:
@@ -248,12 +253,23 @@ def set_arguments(parser):
                             help='check GitHub Pull Requests')
     pgh.add_argument('gh_id', type=int,
                      help='GitHub Pull Request ID')
+    pgh.add_argument('--disable', type=str,
+                     help='Disable the pylint errors. Default: %(default)s',
+                     default='C,E,R,W,F0401,I0011')
+    pgh.add_argument('--enable', type=str,
+                     help=('Enable the pylint errors '
+                           '(takes place after disabled items are '
+                           'processed). Default: %(default)s'),
+                     default='W0611')
+    pgh.add_argument('--pep8-disable', type=str,
+                     help='Disable the pep8 errors. Default: %(default)s',
+                     default='E501,E265,W601,E402')
     pgh.set_defaults(func=check_patch_github)
 
 
 def check_patch_github(args):
     gh_id = args.gh_id
-    checker = PatchChecker(github_id=gh_id)
+    checker = PatchChecker(args, github_id=gh_id)
     checker.validate()
     if checker.check():
         log.info("Github ID #%s check PASS", gh_id)
