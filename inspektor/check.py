@@ -33,21 +33,6 @@ log = logging.getLogger("inspektor.check")
 # Rely on built-in recursion limit to limit number of directories searched
 
 
-def license_project_name(path):
-    '''
-    Locate the nearest LICENSE file, take first word as the project name
-    '''
-    if path == '/' or path == '.':
-        raise RuntimeError('Ran out of directories searching for LICENSE file')
-    try:
-        license_file = file(os.path.join(path, 'LICENSE'), 'r')
-        first_word = license_file.readline().strip().split()[0].lower()
-        return first_word, path
-    except IOError:
-        # Recurse search parent of path's directory
-        return license_project_name(os.path.dirname(path))
-
-
 class FileChecker(object):
 
     """
@@ -55,7 +40,7 @@ class FileChecker(object):
     and eventually applying solutions when all possible.
     """
 
-    def __init__(self):
+    def __init__(self, args):
         """
         Class constructor, sets the file checkers.
 
@@ -64,9 +49,14 @@ class FileChecker(object):
         :param confirm: Whether to answer yes to all questions asked without
                 prompting the user.
         """
-        self.linter = lint.Linter()
-        self.indenter = reindent.Reindenter()
-        self.style_checker = style.StyleChecker()
+        assert args.disable is not None
+        assert args.pep8_disable is not None
+        self.args = args
+        self.linter = lint.Linter(self.args)
+        self.indenter = reindent.Reindenter(self.args)
+        # Tweak --disable option for StyleChecker
+        self.args.disable = self.args.pep8_disable
+        self.style_checker = style.StyleChecker(self.args)
         self.vcs = vcs.VCS()
 
     def _check_indent(self, path):
@@ -106,7 +96,7 @@ class FileChecker(object):
         result = True
         if os.path.isdir(path):
             return result
-        path_inspector = inspector.PathInspector(path)
+        path_inspector = inspector.PathInspector(path, self.args)
         path_is_script = path_inspector.is_script()
         path_is_exec = path_inspector.has_exec_permission()
         if path_is_script:
@@ -132,8 +122,8 @@ class FileChecker(object):
 
 class PatchChecker(FileChecker):
 
-    def __init__(self, patch=None, patchwork_id=None, github_id=None):
-        FileChecker.__init__(self)
+    def __init__(self, args, patch=None, patchwork_id=None, github_id=None):
+        FileChecker.__init__(self, args)
         self.base_dir = TMP_FILE_DIR
 
         if patch:
@@ -200,16 +190,17 @@ class PatchChecker(FileChecker):
 
         return collection
 
-    def _get_github_project_name(self):
-        project_name, _ = license_project_name(self.vcs.cwd)
-        return project_name
+    def _get_github_repo_name(self):
+        return self.vcs.get_repo_name()
 
     def _get_github_url(self, gh_id):
         """
         Gets the correct github URL for the given project.
         """
-        return ("https://github.com/autotest/%s/pull/%s.patch" %
-                (self._get_github_project_name(), gh_id))
+        p_project = self.args.parent_project
+        repo = self._get_github_repo_name()
+        return ("https://github.com/%s/%s/pull/%s.patch" %
+                (p_project, repo, gh_id))
 
     def _fetch_from_github(self, gh_id):
         """
@@ -248,12 +239,27 @@ def set_arguments(parser):
                             help='check GitHub Pull Requests')
     pgh.add_argument('gh_id', type=int,
                      help='GitHub Pull Request ID')
+    pgh.add_argument('-p', '--parent-project', type=str,
+                     help=('Parent project name of the current repository.'
+                           ' Default: %(default)s'),
+                     default='autotest')
+    pgh.add_argument('--disable', type=str,
+                     help='Disable the pylint errors. Default: %(default)s',
+                     default='C,E,R,W,F0401,I0011')
+    pgh.add_argument('--enable', type=str,
+                     help=('Enable the pylint errors '
+                           '(takes place after disabled items are '
+                           'processed). Default: %(default)s'),
+                     default='W0611')
+    pgh.add_argument('--pep8-disable', type=str,
+                     help='Disable the pep8 errors. Default: %(default)s',
+                     default='E501,E265,W601,E402')
     pgh.set_defaults(func=check_patch_github)
 
 
 def check_patch_github(args):
     gh_id = args.gh_id
-    checker = PatchChecker(github_id=gh_id)
+    checker = PatchChecker(args, github_id=gh_id)
     checker.validate()
     if checker.check():
         log.info("Github ID #%s check PASS", gh_id)
