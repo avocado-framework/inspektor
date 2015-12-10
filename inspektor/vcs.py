@@ -47,6 +47,12 @@ class VCS(object):
                            "must be at the top of the project's directory")
             return 1
 
+    def get_repo_name(self):
+        """
+        Get the repository name
+        """
+        return self.backend.get_repo_name()
+
     def get_unknown_files(self):
         """
         Return a list of files unknown to the VCS.
@@ -122,6 +128,12 @@ class SubVersionBackend(object):
         self.log = logging.getLogger('inspektor.vcs')
         self.name = 'subversion'
         self.ignored_extension_list = ['.orig', '.bak']
+
+    def get_repo_name(self):
+        """
+        Get the repository name
+        """
+        raise NotImplementedError
 
     def get_unknown_files(self):
         result = process.run("svn status --ignore-externals", verbose=False)
@@ -266,6 +278,14 @@ class GitBackend(object):
         self.ignored_extension_list = ['.orig', '.bak']
         self.name = 'git'
         self.log = logging.getLogger("inspektor.vcs")
+
+    def get_repo_name(self):
+        """
+        Get tje repository name from git remote command output.
+        """
+        cmd = "git remote -v | head -n1 | awk '{print $2}'"
+        cmd += " | sed -e 's,.*:\(.*/\)\?,,' -e 's/\.git$//'"
+        return process.run(cmd, verbose=False, shell=True).stdout.strip()
 
     def get_unknown_files(self):
         result = process.run("git status --porcelain", verbose=False)

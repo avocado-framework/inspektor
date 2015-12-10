@@ -33,21 +33,6 @@ log = logging.getLogger("inspektor.check")
 # Rely on built-in recursion limit to limit number of directories searched
 
 
-def license_project_name(path):
-    '''
-    Locate the nearest LICENSE file, take first word as the project name
-    '''
-    if path == '/' or path == '.':
-        raise RuntimeError('Ran out of directories searching for LICENSE file')
-    try:
-        license_file = file(os.path.join(path, 'LICENSE'), 'r')
-        first_word = license_file.readline().strip().split()[0].lower()
-        return first_word, path
-    except IOError:
-        # Recurse search parent of path's directory
-        return license_project_name(os.path.dirname(path))
-
-
 class FileChecker(object):
 
     """
@@ -205,16 +190,17 @@ class PatchChecker(FileChecker):
 
         return collection
 
-    def _get_github_project_name(self):
-        project_name, _ = license_project_name(self.vcs.cwd)
-        return project_name
+    def _get_github_repo_name(self):
+        return self.vcs.get_repo_name()
 
     def _get_github_url(self, gh_id):
         """
         Gets the correct github URL for the given project.
         """
-        return ("https://github.com/autotest/%s/pull/%s.patch" %
-                (self._get_github_project_name(), gh_id))
+        p_project = self.args.parent_project
+        repo = self._get_github_repo_name()
+        return ("https://github.com/%s/%s/pull/%s.patch" %
+                (p_project, repo, gh_id))
 
     def _fetch_from_github(self, gh_id):
         """
@@ -253,6 +239,10 @@ def set_arguments(parser):
                             help='check GitHub Pull Requests')
     pgh.add_argument('gh_id', type=int,
                      help='GitHub Pull Request ID')
+    pgh.add_argument('-p', '--parent-project', type=str,
+                     help=('Parent project name of the current repository.'
+                           ' Default: %(default)s'),
+                     default='autotest')
     pgh.add_argument('--disable', type=str,
                      help='Disable the pylint errors. Default: %(default)s',
                      default='C,E,R,W,F0401,I0011')
