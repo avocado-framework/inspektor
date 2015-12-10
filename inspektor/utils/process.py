@@ -51,14 +51,18 @@ class CmdResult(object):
                                    self.duration, self.stdout, self.stderr))
 
 
-def run(cmd, verbose=True, ignore_status=False):
+def run(cmd, verbose=True, ignore_status=False, shell=False):
     if verbose:
         log.info("Running '%s'", cmd)
-    args = shlex.split(cmd)
+    if shell is False:
+        args = shlex.split(cmd)
+    else:
+        args = cmd
     start = time.time()
     p = subprocess.Popen(args,
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE,
+                         shell=shell)
     stdout, stderr = p.communicate()
     duration = time.time() - start
     result = CmdResult(cmd)
