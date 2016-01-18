@@ -22,10 +22,10 @@ else:
     REQUIRES = ['pep8>=1.6.2', 'pylint>=1.3']
 
 setup(name='inspektor',
-      version='0.2.0',
+      version='0.2.1',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
-      author_email='lmr@redhat.com',
+      author_email='lookkas@gmail.com',
       url='https://github.com/autotest/inspektor',
       packages=['inspektor',
                 'inspektor.cli',
