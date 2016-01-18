@@ -26,6 +26,7 @@ except ImportError:
 
 from inspector import PathInspector
 from . import stacktrace
+from .utils import process
 
 log = logging.getLogger("inspektor.style")
 
@@ -90,14 +91,7 @@ class StyleChecker(object):
                 if self.args.fix:
                     log.info('Trying to fix errors with autopep8')
                     try:
-                        auto_args = [path, '--in-place',
-                                     ('--max-line-length=%s' %
-                                      self.args.max_line_length)]
-                        if self.args.disable:
-                            auto_args.append("--ignore='%s'" %
-                                             self.args.disable)
-                        opt_obj = autopep8.parse_args(auto_args)
-                        autopep8.fix_file(path, opt_obj)
+                        process.run('autopep8 --in-place --max-line-length=%s --ignore %s %s' % (self.args.max_line_length, self.args.disable, path))
                     except Exception:
                         log.error('Unable to fix errors')
                         exc_info = sys.exc_info()
