@@ -16,7 +16,7 @@ import logging
 import os
 import sys
 
-import pep8
+import pycodestyle
 
 try:
     import autopep8
@@ -67,25 +67,20 @@ class StyleChecker(object):
         if not inspector.is_python():
             return True
         try:
-            opt_obj = pep8.StyleGuide().options
+            opt_obj = pycodestyle.StyleGuide().options
             ignore_list = self.args.disable.split(',') + list(opt_obj.ignore)
             opt_obj.ignore = tuple(set(ignore_list))
             # pylint: disable=E1123
-            runner = pep8.Checker(filename=path, options=opt_obj)
-        except Exception:
-            opts = ['--ignore'] + self.args.disable.split(',')
-            pep8.process_options(opts)
-            runner = pep8.Checker(filename=path)
-        try:
+            runner = pycodestyle.Checker(filename=path, options=opt_obj)
             status = runner.check_all()
-        except:
+        except Exception:
             log.error('Unexpected exception while checking %s', path)
             exc_info = sys.exc_info()
             stacktrace.log_exc_info(exc_info, 'inspektor.style')
             status = 1
 
         if status != 0:
-            log.error('PEP8 check fail: %s', path)
+            log.error('Style check fail: %s', path)
             self.failed_paths.append(path)
             if AUTOPEP8_CAPABLE:
                 if self.args.fix:

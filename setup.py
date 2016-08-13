@@ -17,12 +17,12 @@ from setuptools import setup
 import sys
 
 if sys.version_info[:2] == (2, 6):
-    REQUIRES = ['astroid==1.2.1', 'pep8>=1.6.2', 'pylint==1.3.1', 'logutils>=0.3.3']
+    REQUIRES = ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1', 'logutils>=0.3.3']
 else:
-    REQUIRES = ['pep8>=1.6.2', 'pylint>=1.3']
+    REQUIRES = ['pycodestyle>=2.0.0', 'pylint>=1.3']
 
 setup(name='inspektor',
-      version='0.2.1',
+      version='0.2.2',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lookkas@gmail.com',
