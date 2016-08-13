@@ -22,7 +22,7 @@ else:
     REQUIRES = ['pycodestyle>=2.0.0', 'pylint>=1.3']
 
 setup(name='inspektor',
-      version='0.2.1',
+      version='0.2.2',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lookkas@gmail.com',
