@@ -119,7 +119,7 @@ def set_arguments(parser):
                        default=None)
     plint.add_argument('--disable', type=str,
                        help='Disable the pylint errors. Default: %(default)s',
-                       default='C,E,R,W,F0401,I0011')
+                       default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
     plint.add_argument('--enable', type=str,
                        help=('Enable the pylint errors '
                              '(takes place after disabled items are '
