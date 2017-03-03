@@ -113,7 +113,7 @@ def set_arguments(parser):
                         default=None)
     pstyle.add_argument('--disable', type=str,
                         help='Disable the pep8 errors. Default: %(default)s',
-                        default='E501,E265,W601,E402')
+                        default='E501,E265,W503,W601,E402')
     pstyle.add_argument('--fix', action='store_true', default=False,
                         help='Fix any style problems found (with autopep8)')
     pstyle.add_argument('--max-line-length', type=int, default=79,
