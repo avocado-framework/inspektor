@@ -18,7 +18,7 @@ import sys
 
 from pylint.lint import Run
 
-from inspector import PathInspector
+from .inspector import PathInspector
 
 log = logging.getLogger("inspektor.lint")
 

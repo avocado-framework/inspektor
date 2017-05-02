@@ -17,7 +17,7 @@ import tokenize
 import logging
 import sys
 
-from inspector import PathInspector
+from .inspector import PathInspector
 from . import stacktrace
 
 log = logging.getLogger("inspektor.reindent")

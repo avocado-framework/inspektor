@@ -16,12 +16,12 @@ import logging
 import os
 import tempfile
 
-from inspektor import lint
-from inspektor import reindent
-from inspektor import style
-from inspektor import inspector
-from inspektor import vcs
-from inspektor import utils
+from . import lint
+from . import reindent
+from . import style
+from . import inspector
+from . import vcs
+from . import utils
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')

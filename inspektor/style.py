@@ -24,7 +24,7 @@ try:
 except ImportError:
     AUTOPEP8_CAPABLE = False
 
-from inspector import PathInspector
+from .inspector import PathInspector
 from . import stacktrace
 from .utils import process
 

@@ -12,14 +12,6 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
-import cli
-import exceptions
-import inspector
-import lint
-import reindent
-import utils
-import vcs
-
 import logging.config
 
 DEFAULT_LOGGING = {

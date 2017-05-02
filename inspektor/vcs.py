@@ -18,9 +18,9 @@ Module that has models for version control systems, for inspektor scripts.
 import logging
 import os
 
-from inspektor import exceptions
-from inspektor import utils
-from inspektor.utils import process
+from . import exceptions
+from . import utils
+from .utils import process
 
 
 class VCS(object):

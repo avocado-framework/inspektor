@@ -14,7 +14,7 @@
 
 import logging
 import os
-from inspector import PathInspector
+from .inspector import PathInspector
 
 log = logging.getLogger("inspektor.license")
 

@@ -18,11 +18,11 @@ Implements the base inspektor application.
 import logging
 from argparse import ArgumentParser
 
-from inspektor import lint
-from inspektor import reindent
-from inspektor import style
-from inspektor import check
-from inspektor import license
+from .. import lint
+from .. import reindent
+from .. import style
+from .. import check
+from .. import license
 
 log = logging.getLogger("inspektor.app")
 
