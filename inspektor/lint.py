@@ -16,6 +16,11 @@ import logging
 import os
 import sys
 
+try:
+    from os.path import walk
+except ImportError:
+    from os import walk
+
 from pylint.lint import Run
 
 from .inspector import PathInspector
@@ -72,7 +77,7 @@ class Linter(object):
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
-        os.path.walk(path, visit, None)
+        walk(path, visit, None)
         return not self.failed_paths
 
     def check_file(self, path):

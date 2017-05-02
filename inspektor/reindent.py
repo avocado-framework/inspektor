@@ -17,6 +17,11 @@ import tokenize
 import logging
 import sys
 
+try:
+    from os.path import walk
+except ImportError:
+    from os import walk
+
 from .inspector import PathInspector
 from . import stacktrace
 
@@ -237,7 +242,7 @@ class Reindenter(object):
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
-        os.path.walk(path, visit, None)
+        walk(path, visit, None)
         return not self.failed_paths
 
     def check(self, path):
