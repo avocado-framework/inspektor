@@ -14,6 +14,8 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
+from __future__ import print_function
+
 __all__ = ['MAJOR', 'MINOR', 'RELEASE', 'VERSION']
 
 
@@ -24,4 +26,4 @@ RELEASE = 2
 VERSION = "%s.%s.%s" % (MAJOR, MINOR, RELEASE)
 
 if __name__ == '__main__':
-    print VERSION
+    print(VERSION)
