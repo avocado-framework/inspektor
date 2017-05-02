@@ -104,24 +104,6 @@ class StyleChecker(object):
             return False
 
 
-def set_arguments(parser):
-    pstyle = parser.add_parser('style',
-                               help='check code compliance to PEP8')
-    pstyle.add_argument('path', type=str,
-                        help='Path to check (empty for full tree check)',
-                        nargs='*',
-                        default=None)
-    pstyle.add_argument('--disable', type=str,
-                        help='Disable the pep8 errors. Default: %(default)s',
-                        default='E501,E265,W601,E402')
-    pstyle.add_argument('--fix', action='store_true', default=False,
-                        help='Fix any style problems found (with autopep8)')
-    pstyle.add_argument('--max-line-length', type=int, default=79,
-                        help=('set maximum allowed line length. Default: '
-                              '%(default)s'))
-    pstyle.set_defaults(func=run_style)
-
-
 def run_style(args):
     paths = args.path
     if not paths:
@@ -138,3 +120,22 @@ def run_style(args):
     else:
         log.error("PEP8 compliance FAIL")
         return 1
+
+
+def set_arguments(parser):
+    command = 'style'
+    pstyle = parser.add_parser(command,
+                               help='check code compliance to PEP8')
+    pstyle.add_argument('path', type=str,
+                        help='Path to check (empty for full tree check)',
+                        nargs='*',
+                        default=None)
+    pstyle.add_argument('--disable', type=str,
+                        help='Disable the pep8 errors. Default: %(default)s',
+                        default='E501,E265,W601,E402')
+    pstyle.add_argument('--fix', action='store_true', default=False,
+                        help='Fix any style problems found (with autopep8)')
+    pstyle.add_argument('--max-line-length', type=int, default=79,
+                        help=('set maximum allowed line length. Default: '
+                              '%(default)s'))
+    return (command, run_style)

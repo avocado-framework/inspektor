@@ -234,6 +234,18 @@ class PatchChecker(FileChecker):
         return self._check_files_modified_patch()
 
 
+def check_patch_github(args):
+    gh_id = args.gh_id
+    checker = PatchChecker(args, github_id=gh_id)
+    checker.validate()
+    if checker.check():
+        log.info("Github ID #%s check PASS", gh_id)
+        return 0
+    else:
+        log.info("Github ID #%s check FAIL", gh_id)
+        return 1
+
+
 def set_arguments(parser):
     pgh = parser.add_parser('github',
                             help='check GitHub Pull Requests')
@@ -254,16 +266,4 @@ def set_arguments(parser):
     pgh.add_argument('--pep8-disable', type=str,
                      help='Disable the pep8 errors. Default: %(default)s',
                      default='E501,E265,W601,E402')
-    pgh.set_defaults(func=check_patch_github)
-
-
-def check_patch_github(args):
-    gh_id = args.gh_id
-    checker = PatchChecker(args, github_id=gh_id)
-    checker.validate()
-    if checker.check():
-        log.info("Github ID #%s check PASS", gh_id)
-        return 0
-    else:
-        log.info("Github ID #%s check FAIL", gh_id)
-        return 1
+    return ('check', check_patch_github)

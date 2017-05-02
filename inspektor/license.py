@@ -116,8 +116,25 @@ class LicenseChecker(object):
             return False
 
 
+def run_license(args):
+    path = args.path
+
+    if not path:
+        path = os.getcwd()
+
+    checker = LicenseChecker(args)
+
+    if checker.check(path):
+        log.info("License check PASS")
+        return 0
+    else:
+        log.error("License check FAIL")
+        return 1
+
+
 def set_arguments(parser):
-    plicense = parser.add_parser('license',
+    command = 'license'
+    plicense = parser.add_parser(command,
                                  help='check for presence of license files')
     plicense.add_argument('path', type=str,
                           help='Path to check (empty for full tree check)',
@@ -134,20 +151,4 @@ def set_arguments(parser):
     plicense.add_argument('--author', type=str,
                           help='Author string. Ex: "Author: Brandon Lindon <brandon.lindon@foocorp.com>"',
                           default="")
-    plicense.set_defaults(func=run_license)
-
-
-def run_license(args):
-    path = args.path
-
-    if not path:
-        path = os.getcwd()
-
-    checker = LicenseChecker(args)
-
-    if checker.check(path):
-        log.info("License check PASS")
-        return 0
-    else:
-        log.error("License check FAIL")
-        return 1
+    return (command, run_license)

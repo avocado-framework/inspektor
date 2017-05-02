@@ -26,6 +26,7 @@ from .. import license
 
 log = logging.getLogger("inspektor.app")
 
+ERROR_INVALID_ARGS = 1
 ERROR_INTERRUPTED = 3
 
 
@@ -36,6 +37,7 @@ class InspektorApp(object):
     """
 
     def __init__(self):
+        self.actions = {}
         self.arg_parser = ArgumentParser(description='Inspektor code check')
         self.arg_parser.add_argument('-v', '--verbose', action='store_true',
                                      help=('print extra debug messages '
@@ -48,17 +50,20 @@ class InspektorApp(object):
                                           'checking, comma separated')
         subparsers = self.arg_parser.add_subparsers(title='subcommands',
                                                     description='valid subcommands',
-                                                    help='subcommand help')
-        lint.set_arguments(subparsers)
-        reindent.set_arguments(subparsers)
-        style.set_arguments(subparsers)
-        check.set_arguments(subparsers)
-        license.set_arguments(subparsers)
+                                                    help='subcommand help',
+                                                    dest='subcommand')
+        for mod in (lint, reindent, style, check, license):
+            command, func = mod.set_arguments(subparsers)
+            self.actions[command] = func
         self.args = self.arg_parser.parse_args()
 
     def run(self):
         try:
-            return self.args.func(self.args)
+            if self.args.subcommand is None:
+                self.arg_parser.print_usage()
+                return ERROR_INVALID_ARGS
+            else:
+                return self.actions[self.args.subcommand](self.args)
         except KeyboardInterrupt:
             log.error('User pressed Ctrl+C, exiting...')
             return ERROR_INTERRUPTED

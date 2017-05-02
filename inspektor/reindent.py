@@ -250,17 +250,6 @@ class Reindenter(object):
             return False
 
 
-def set_arguments(parser):
-    pindent = parser.add_parser('indent', help='check code indentation')
-    pindent.add_argument('path', type=str,
-                         help='Path to check (empty for full tree check)',
-                         nargs='*',
-                         default=None)
-    pindent.add_argument('--fix', action='store_true', default=False,
-                         help='Fix any indentation problems found')
-    pindent.set_defaults(func=run_reindent)
-
-
 def run_reindent(args):
     paths = args.path
     if not paths:
@@ -277,3 +266,15 @@ def run_reindent(args):
     else:
         log.error("Indentation check FAIL")
         return 1
+
+
+def set_arguments(parser):
+    command = 'indent'
+    pindent = parser.add_parser(command, help='check code indentation')
+    pindent.add_argument('path', type=str,
+                         help='Path to check (empty for full tree check)',
+                         nargs='*',
+                         default=None)
+    pindent.add_argument('--fix', action='store_true', default=False,
+                         help='Fix any indentation problems found')
+    return (command, run_reindent)
