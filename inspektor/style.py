@@ -21,6 +21,7 @@ import pycodestyle
 try:
     import autopep8
     AUTOPEP8_CAPABLE = True
+    del(autopep8)
 except ImportError:
     AUTOPEP8_CAPABLE = False
 
