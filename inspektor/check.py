@@ -25,8 +25,6 @@ from . import utils
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')
-# Hostname of patchwork server to use
-PWHOST = "patchwork.virt.bos.redhat.com"
 
 log = logging.getLogger("inspektor.check")
 
