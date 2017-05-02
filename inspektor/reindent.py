@@ -147,7 +147,7 @@ class Run(object):
         return line
 
     # Line-eater for tokenize.
-    def tokeneater(self, t_type, token, (sline, scol), end, line,
+    def tokeneater(self, t_type, token, sline_scol, end, line,
                    INDENT=tokenize.INDENT,
                    DEDENT=tokenize.DEDENT,
                    NEWLINE=tokenize.NEWLINE,
@@ -170,6 +170,7 @@ class Run(object):
 
         elif t_type == COMMENT:
             if self.find_stmt:
+                sline, _ = sline_scol
                 self.stats.append((sline, -1))
                 # but we're still looking for a new stmt, so leave
                 # find_stmt alone
@@ -183,6 +184,7 @@ class Run(object):
             # ENDMARKER.
             self.find_stmt = 0
             if line:   # not endmarker
+                sline, _ = sline_scol
                 self.stats.append((sline, self.level))
 
 
