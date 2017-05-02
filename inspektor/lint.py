@@ -95,7 +95,7 @@ class Linter(object):
                 log.error('Pylint check fail: %s', path)
                 self.failed_paths.append(path)
             return runner.linter.msg_status == 0
-        except Exception, details:
+        except Exception as details:
             log.error('Pylint check fail: %s (pylint exception: %s)',
                       path, details)
             self.failed_paths.append(path)
