@@ -16,17 +16,15 @@ import logging
 import os
 import tempfile
 
-from inspektor import lint
-from inspektor import reindent
-from inspektor import style
-from inspektor import inspector
-from inspektor import vcs
-from inspektor import utils
+from . import lint
+from . import reindent
+from . import style
+from . import inspector
+from . import vcs
+from . import utils
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')
-# Hostname of patchwork server to use
-PWHOST = "patchwork.virt.bos.redhat.com"
 
 log = logging.getLogger("inspektor.check")
 
@@ -234,6 +232,18 @@ class PatchChecker(FileChecker):
         return self._check_files_modified_patch()
 
 
+def check_patch_github(args):
+    gh_id = args.gh_id
+    checker = PatchChecker(args, github_id=gh_id)
+    checker.validate()
+    if checker.check():
+        log.info("Github ID #%s check PASS", gh_id)
+        return 0
+    else:
+        log.info("Github ID #%s check FAIL", gh_id)
+        return 1
+
+
 def set_arguments(parser):
     pgh = parser.add_parser('github',
                             help='check GitHub Pull Requests')
@@ -254,16 +264,4 @@ def set_arguments(parser):
     pgh.add_argument('--pep8-disable', type=str,
                      help='Disable the pep8 errors. Default: %(default)s',
                      default='E501,E265,W601,E402')
-    pgh.set_defaults(func=check_patch_github)
-
-
-def check_patch_github(args):
-    gh_id = args.gh_id
-    checker = PatchChecker(args, github_id=gh_id)
-    checker.validate()
-    if checker.check():
-        log.info("Github ID #%s check PASS", gh_id)
-        return 0
-    else:
-        log.info("Github ID #%s check FAIL", gh_id)
-        return 1
+    return ('check', check_patch_github)

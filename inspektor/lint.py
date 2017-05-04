@@ -16,9 +16,14 @@ import logging
 import os
 import sys
 
+try:
+    from os.path import walk
+except ImportError:
+    from os import walk
+
 from pylint.lint import Run
 
-from inspector import PathInspector
+from .inspector import PathInspector
 
 log = logging.getLogger("inspektor.lint")
 
@@ -72,7 +77,7 @@ class Linter(object):
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
-        os.path.walk(path, visit, None)
+        walk(path, visit, None)
         return not self.failed_paths
 
     def check_file(self, path):
@@ -95,7 +100,7 @@ class Linter(object):
                 log.error('Pylint check fail: %s', path)
                 self.failed_paths.append(path)
             return runner.linter.msg_status == 0
-        except Exception, details:
+        except Exception as details:
             log.error('Pylint check fail: %s (pylint exception: %s)',
                       path, details)
             self.failed_paths.append(path)
@@ -109,23 +114,6 @@ class Linter(object):
         else:
             log.error("Invalid location '%s'", path)
             return False
-
-
-def set_arguments(parser):
-    plint = parser.add_parser('lint', help='check code with pylint')
-    plint.add_argument('path', type=str,
-                       help='Path to check (empty for full tree check)',
-                       nargs='*',
-                       default=None)
-    plint.add_argument('--disable', type=str,
-                       help='Disable the pylint errors. Default: %(default)s',
-                       default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
-    plint.add_argument('--enable', type=str,
-                       help=('Enable the pylint errors '
-                             '(takes place after disabled items are '
-                             'processed). Default: %(default)s'),
-                       default='W0611')
-    plint.set_defaults(func=run_lint)
 
 
 def run_lint(args):
@@ -144,3 +132,21 @@ def run_lint(args):
     else:
         log.error("Syntax check FAIL")
         return 1
+
+
+def set_arguments(parser):
+    command = 'lint'
+    plint = parser.add_parser(command, help='check code with pylint')
+    plint.add_argument('path', type=str,
+                       help='Path to check (empty for full tree check)',
+                       nargs='*',
+                       default=None)
+    plint.add_argument('--disable', type=str,
+                       help='Disable the pylint errors. Default: %(default)s',
+                       default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
+    plint.add_argument('--enable', type=str,
+                       help=('Enable the pylint errors '
+                             '(takes place after disabled items are '
+                             'processed). Default: %(default)s'),
+                       default='W0611')
+    return (command, run_lint)

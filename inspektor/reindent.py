@@ -17,7 +17,12 @@ import tokenize
 import logging
 import sys
 
-from inspector import PathInspector
+try:
+    from os.path import walk
+except ImportError:
+    from os import walk
+
+from .inspector import PathInspector
 from . import stacktrace
 
 log = logging.getLogger("inspektor.reindent")
@@ -147,7 +152,7 @@ class Run(object):
         return line
 
     # Line-eater for tokenize.
-    def tokeneater(self, t_type, token, (sline, scol), end, line,
+    def tokeneater(self, t_type, token, sline_scol, end, line,
                    INDENT=tokenize.INDENT,
                    DEDENT=tokenize.DEDENT,
                    NEWLINE=tokenize.NEWLINE,
@@ -170,6 +175,7 @@ class Run(object):
 
         elif t_type == COMMENT:
             if self.find_stmt:
+                sline, _ = sline_scol
                 self.stats.append((sline, -1))
                 # but we're still looking for a new stmt, so leave
                 # find_stmt alone
@@ -183,6 +189,7 @@ class Run(object):
             # ENDMARKER.
             self.find_stmt = 0
             if line:   # not endmarker
+                sline, _ = sline_scol
                 self.stats.append((sline, self.level))
 
 
@@ -235,7 +242,7 @@ class Reindenter(object):
             for filename in filenames:
                 self.check_file(os.path.join(dirname, filename))
 
-        os.path.walk(path, visit, None)
+        walk(path, visit, None)
         return not self.failed_paths
 
     def check(self, path):
@@ -246,17 +253,6 @@ class Reindenter(object):
         else:
             log.warning("Invalid location '%s'", path)
             return False
-
-
-def set_arguments(parser):
-    pindent = parser.add_parser('indent', help='check code indentation')
-    pindent.add_argument('path', type=str,
-                         help='Path to check (empty for full tree check)',
-                         nargs='*',
-                         default=None)
-    pindent.add_argument('--fix', action='store_true', default=False,
-                         help='Fix any indentation problems found')
-    pindent.set_defaults(func=run_reindent)
 
 
 def run_reindent(args):
@@ -275,3 +271,15 @@ def run_reindent(args):
     else:
         log.error("Indentation check FAIL")
         return 1
+
+
+def set_arguments(parser):
+    command = 'indent'
+    pindent = parser.add_parser(command, help='check code indentation')
+    pindent.add_argument('path', type=str,
+                         help='Path to check (empty for full tree check)',
+                         nargs='*',
+                         default=None)
+    pindent.add_argument('--fix', action='store_true', default=False,
+                         help='Fix any indentation problems found')
+    return (command, run_reindent)

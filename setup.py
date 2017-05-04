@@ -18,8 +18,11 @@ import sys
 
 if sys.version_info[:2] == (2, 6):
     REQUIRES = ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1', 'logutils>=0.3.3']
-else:
+elif sys.version_info[:2] == (2, 7):
     REQUIRES = ['pycodestyle>=2.0.0', 'pylint>=1.3']
+elif sys.version_info[0] == 3:
+    REQUIRES = ['pycodestyle', 'pylint']
+
 
 setup(name='inspektor',
       version='0.2.2',

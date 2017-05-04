@@ -16,9 +16,6 @@ import logging
 import random
 import string
 
-import download
-import process
-
 log = logging.getLogger('inspektor.utils')
 
 
