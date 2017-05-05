@@ -25,11 +25,11 @@ elif sys.version_info[0] == 3:
 
 
 setup(name='inspektor',
-      version='0.2.2',
+      version='0.3.0',
       description='Inspektor code checker',
       author='Lucas Meneghel Rodrigues',
       author_email='lookkas@gmail.com',
-      url='https://github.com/autotest/inspektor',
+      url='https://github.com/avocado-framework/inspektor',
       packages=['inspektor',
                 'inspektor.cli',
                 'inspektor.utils'
