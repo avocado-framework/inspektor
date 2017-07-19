@@ -3,13 +3,13 @@ run_rc() {
     echo "Running '$1'"
     $1
 }
-run_rc 'inspekt lint'
+run_rc 'inspekt lint --exclude .venv'
 rc1=$?
 echo ""
-run_rc 'inspekt indent'
+run_rc 'inspekt indent --exclude .venv'
 rc2=$?
 echo ""
-run_rc 'inspekt style'
+run_rc 'inspekt style --exclude .venv'
 rc3=$?
 exit $rc1 || $rc2 || $rc3
 

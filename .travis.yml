@@ -3,12 +3,11 @@ python:
     - "2.7"
     - "2.6"
     - "3.5"
+    - "3.6"
 sudo: false
 
 install:
-    - if [ $TRAVIS_PYTHON_VERSION == '2.6' ]; then pip install -r requirements-travis-python26.txt; pip install -r requirements-travis.txt; fi
-    - if [ $TRAVIS_PYTHON_VERSION == '2.7' ]; then pip install -r requirements-travis.txt; fi
-    - if [ $TRAVIS_PYTHON_VERSION == '3.5' ]; then pip install -r requirements-travis-python35.txt; pip install -r requirements-python35.txt; python setup.py install; fi
+    - pip install -e .
 
 script:
     - make check

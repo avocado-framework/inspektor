@@ -223,7 +223,7 @@ class SubVersionBackend(object):
         """
         try:
             process.run("patch -p1 < %s" % patch, verbose=False)
-        except:
+        except Exception:
             self.log.error("Patch applied incorrectly. Possible causes: ")
             self.log.error("1 - Patch might not be -p1")
             self.log.error("2 - You are not at the top of the tree")

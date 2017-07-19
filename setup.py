@@ -21,13 +21,15 @@ PROJECT = 'inspektor'
 # Change docs/sphinx/conf.py too!
 VERSION = '0.4.0'
 
-REQUIRES = ['six', 'cliff']
+REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
-    REQUIRES += ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1', 'logutils>=0.3.3']
+    REQUIRES += ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1',
+                 'logutils>=0.3.3', 'stevedore<=1.10', 'cliff<=1.15.0',
+                 'pbr<2.0,>=1.4']
 elif sys.version_info[:2] == (2, 7):
-    REQUIRES += ['pycodestyle>=2.0.0', 'pylint>=1.3']
+    REQUIRES += ['pycodestyle>=2.0.0', 'pylint>=1.3', 'cliff']
 elif sys.version_info[0] == 3:
-    REQUIRES += ['pycodestyle', 'pylint']
+    REQUIRES += ['pycodestyle', 'pylint', 'cliff']
 
 try:
     long_description = open('README.rst', 'rt').read()

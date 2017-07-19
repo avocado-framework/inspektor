@@ -18,6 +18,8 @@ import shutil
 import socket
 import six
 
+# pylint: disable=E0611
+# pylint: disable=E1101
 if six.PY2:
     import urllib2
     import urlparse
