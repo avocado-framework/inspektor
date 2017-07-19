@@ -16,6 +16,7 @@ import logging
 import os
 import sys
 import tokenize
+import six
 
 try:
     from os.path import walk
@@ -74,7 +75,12 @@ class Run(object):
         self.stats = []
 
     def run(self):
-        tokenize.tokenize(self.getline, self.tokeneater)
+        if six.PY2:
+            tokenize.tokenize(self.getline, self.tokeneater)
+        else:
+            tokens = tokenize.generate_tokens(self.getline)
+            for _token in tokens:
+                self.tokeneater(*_token)
         # Remove trailing empty lines.
         lines = self.lines
         while lines and lines[-1] == "\n":
@@ -104,14 +110,14 @@ class Run(object):
                     want = have2want.get(have, -1)
                     if want < 0:
                         # Then it probably belongs to the next real stmt.
-                        for j in xrange(i + 1, len(stats) - 1):
+                        for j in range(i + 1, len(stats) - 1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 if have == _getlspace(lines[jline]):
                                     want = jlevel * 4
                                 break
                     if want < 0:
-                        for j in xrange(i - 1, -1, -1):
+                        for j in range(i - 1, -1, -1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 want = have + _getlspace(after[jline - 1]) - \

@@ -16,9 +16,18 @@ import logging
 import os
 import shutil
 import socket
+import six
 
-import urllib2
-import urlparse
+if six.PY2:
+    import urllib2
+    import urlparse
+    _URL_PARSE = urlparse.urlparse
+    _URL_OPEN = urllib2.urlopen
+else:
+    import urllib.request
+    import urllib.parse
+    _URL_PARSE = urllib.parse.urlparse
+    _URL_OPEN = urllib.request.urlopen
 
 log = logging.getLogger('inspektor.utils')
 
@@ -27,8 +36,8 @@ def is_url(path):
     """
     Return true if path looks like a URL
     """
-    url_parts = urlparse.urlparse(path)
-    return (url_parts[0] in ('http', 'https', 'ftp', 'git'))
+    url_parts = _URL_PARSE(path)
+    return url_parts[0] in ('http', 'https', 'ftp', 'git')
 
 
 def url_open(url, data=None, timeout=5):
@@ -39,7 +48,7 @@ def url_open(url, data=None, timeout=5):
     old_timeout = socket.getdefaulttimeout()
     socket.setdefaulttimeout(timeout)
     try:
-        return urllib2.urlopen(url, data=data)
+        return _URL_OPEN(url, data=data)
     finally:
         socket.setdefaulttimeout(old_timeout)
 

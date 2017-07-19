@@ -15,8 +15,15 @@
 import logging
 import random
 import string
+import six
 
-log = logging.getLogger('inspektor.utils')
+from . import download
+from . import process
+
+if six.PY2:
+    input = raw_input
+
+log = logging.getLogger(__name__)
 
 
 def ask(question, auto=False, options="y/n"):
@@ -29,7 +36,7 @@ def ask(question, auto=False, options="y/n"):
     if auto:
         log.info("%s (%s) y" % (question, options))
         return "y"
-    return raw_input("%s (%s) " % (question, options))
+    return input("%s (%s) " % (question, options))
 
 
 def random_string(length, ignore_str=string.punctuation,
@@ -45,7 +52,7 @@ def random_string(length, ignore_str=string.punctuation,
     """
     r = random.SystemRandom()
     result = ""
-    chars = string.letters + string.digits + string.punctuation
+    chars = string.ascii_letters + string.digits + string.punctuation
     if not ignore_str:
         ignore_str = ""
     for i in ignore_str:

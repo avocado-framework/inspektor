@@ -21,7 +21,7 @@ PROJECT = 'inspektor'
 # Change docs/sphinx/conf.py too!
 VERSION = '0.4.0'
 
-REQUIRES = ['cliff']
+REQUIRES = ['six', 'cliff']
 if sys.version_info[:2] == (2, 6):
     REQUIRES += ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1', 'logutils>=0.3.3']
 elif sys.version_info[:2] == (2, 7):
