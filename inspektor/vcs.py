@@ -245,8 +245,8 @@ class SubVersionBackend(object):
                 patch application.
         :param patch: Path to the patch file. Unused in the svn implementation.
         """
-        untracked_files = self.vcs.get_unknown_files()
-        modified_files = self.vcs.get_modified_files()
+        untracked_files = self.get_unknown_files()
+        modified_files = self.get_modified_files()
         add_to_vcs = []
         for untracked_file in untracked_files:
             if untracked_file not in untracked_files_before:
