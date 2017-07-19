@@ -12,9 +12,9 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
+import fnmatch
 import os
 import stat
-import fnmatch
 
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'

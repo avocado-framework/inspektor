@@ -12,20 +12,20 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
-import os
-import tokenize
 import logging
+import os
 import sys
+import tokenize
 
 try:
     from os.path import walk
 except ImportError:
     from os import walk
 
+from cliff.command import Command
+
 from .inspector import PathInspector
 from . import stacktrace
-
-log = logging.getLogger("inspektor.reindent")
 
 
 def _rstrip(line, JUNK='\n \t'):
@@ -195,9 +195,10 @@ class Run(object):
 
 class Reindenter(object):
 
-    def __init__(self, args):
+    def __init__(self, args, logger=logging.getLogger('')):
         self.args = args
         self.failed_paths = []
+        self.log = logger
 
     def check_file(self, path):
         """
@@ -218,21 +219,21 @@ class Reindenter(object):
         f.close()
         try:
             if r.run():
-                log.error('Indentation check fail  : %s', path)
+                self.log.error('Indentation check fail  : %s', path)
                 self.failed_paths.append(path)
                 if self.args.fix:
                     f = open(path, "w")
                     r.write(f)
                     f.close()
-                    log.info('FIX OK')
+                    self.log.info('FIX OK')
                 return False
             else:
                 return True
         except IndentationError:
-            log.error("Indentation check fail  : %s", path)
-            log.error("Automated fix impossible: %s", path)
-            log.error("Look at the stack trace "
-                      "below and fix it manually")
+            self.log.error("Indentation check fail  : %s", path)
+            self.log.error("Automated fix impossible: %s", path)
+            self.log.error("Look at the stack trace "
+                           "below and fix it manually")
             exc_info = sys.exc_info()
             stacktrace.log_exc_info(exc_info, 'inspektor.reindent')
             return False
@@ -251,35 +252,44 @@ class Reindenter(object):
         elif os.path.isdir(path):
             return self.check_dir(path)
         else:
-            log.warning("Invalid location '%s'", path)
+            self.log.warning("Invalid location '%s'", path)
             return False
 
 
-def run_reindent(args):
-    paths = args.path
-    if not paths:
-        paths = [os.getcwd()]
+class ReindentCommand(Command):
+    """
+    check for correct file indentation
+    """
+    log = logging.getLogger(__name__)
 
-    reindenter = Reindenter(args)
+    def get_parser(self, prog_name):
+        parser = super(ReindentCommand, self).get_parser(prog_name)
+        parser.add_argument('path', type=str,
+                            help='Path to check (empty for full tree check)',
+                            nargs='*',
+                            default=None)
+        parser.add_argument('--fix', action='store_true', default=False,
+                            help='Fix any indentation problems found')
+        parser.add_argument('--exclude', type=str,
+                            help='Quoted string containing paths or '
+                                 'patterns to be excluded from '
+                                 'checking, comma separated')
+        parser.add_argument('--verbose', action='store_true',
+                            help='Print extra debug messages')
+        return parser
 
-    status = True
-    for path in paths:
-        status &= reindenter.check(path)
-    if status:
-        log.info("Indentation check PASS")
-        return 0
-    else:
-        log.error("Indentation check FAIL")
-        return 1
+    def take_action(self, parsed_args):
+        if not parsed_args.path:
+            parsed_args.path = [os.getcwd()]
 
+        reindenter = Reindenter(parsed_args, logger=self.log)
 
-def set_arguments(parser):
-    command = 'indent'
-    pindent = parser.add_parser(command, help='check code indentation')
-    pindent.add_argument('path', type=str,
-                         help='Path to check (empty for full tree check)',
-                         nargs='*',
-                         default=None)
-    pindent.add_argument('--fix', action='store_true', default=False,
-                         help='Fix any indentation problems found')
-    return (command, run_reindent)
+        status = True
+        for path in parsed_args.path:
+            status &= reindenter.check(path)
+        if status:
+            self.log.info('Indentation check PASS')
+            return 0
+        else:
+            self.log.error('Syntax check FAIL')
+            return 1

@@ -21,6 +21,7 @@ try:
 except ImportError:
     from os import walk
 
+from cliff.command import Command
 import pycodestyle
 
 try:
@@ -34,17 +35,16 @@ from .inspector import PathInspector
 from . import stacktrace
 from .utils import process
 
-log = logging.getLogger("inspektor.style")
-
 
 class StyleChecker(object):
 
-    def __init__(self, args):
+    def __init__(self, args, logger=logging.getLogger('')):
         self.args = args
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
+        self.log = logger
         self.failed_paths = []
-        log.info('PEP8 disabled: %s' % self.args.disable)
+        self.log.info('PEP8 disabled: %s' % self.args.disable)
 
     def check_dir(self, path):
         """
@@ -80,23 +80,26 @@ class StyleChecker(object):
             runner = pycodestyle.Checker(filename=path, options=opt_obj)
             status = runner.check_all()
         except Exception:
-            log.error('Unexpected exception while checking %s', path)
+            self.log.error('Unexpected exception while checking %s', path)
             exc_info = sys.exc_info()
             stacktrace.log_exc_info(exc_info, 'inspektor.style')
             status = 1
 
         if status != 0:
-            log.error('Style check fail: %s', path)
+            self.log.error('Style check fail: %s', path)
             self.failed_paths.append(path)
             if AUTOPEP8_CAPABLE:
                 if self.args.fix:
-                    log.info('Trying to fix errors with autopep8')
+                    self.log.info('Trying to fix errors with autopep8')
                     try:
                         process.run('autopep8 --in-place --max-line-length=%s --ignore %s %s' % (self.args.max_line_length, self.args.disable, path))
                     except Exception:
-                        log.error('Unable to fix errors')
+                        self.log.error('Unable to fix errors')
                         exc_info = sys.exc_info()
                         stacktrace.log_exc_info(exc_info, 'inspektor.style')
+            else:
+                self.log.error('Python library autopep8 not installed. '
+                               'Please install it if you want to use --fix')
 
         return status == 0
 
@@ -106,42 +109,53 @@ class StyleChecker(object):
         elif os.path.isdir(path):
             return self.check_dir(path)
         else:
-            log.error("Invalid location '%s'", path)
+            self.log.error("Invalid location '%s'", path)
             return False
 
 
-def run_style(args):
-    paths = args.path
-    if not paths:
-        paths = [os.getcwd()]
+class StyleCommand(Command):
+    """
+    check against style guide with pycodestyle
+    """
+    log = logging.getLogger(__name__)
 
-    style_checker = StyleChecker(args)
+    def get_parser(self, prog_name):
+        parser = super(StyleCommand, self).get_parser(prog_name)
+        parser.add_argument('path', type=str,
+                            help='Path to check (empty for full tree check)',
+                            nargs='*',
+                            default=None)
+        parser.add_argument('--disable', type=str,
+                            help='Disable the PEP8 errors given as arguments. '
+                                 'Default: %(default)s',
+                            default='E501,E265,W601,E402')
+        parser.add_argument('--fix', action='store_true', default=False,
+                            help='Fix any style problems found '
+                                 '(needs autopep8 installed)')
+        parser.add_argument('--max-line-length', type=int, default=79,
+                            help=('set maximum allowed line length. Default: '
+                                  '%(default)s'))
+        parser.add_argument('--exclude', type=str,
+                            help='Quoted string containing paths or '
+                                 'patterns to be excluded from '
+                                 'checking, comma separated')
+        parser.add_argument('--verbose', action='store_true',
+                            help='Print extra debug messages')
+        return parser
 
-    status = True
-    for path in paths:
-        status &= style_checker.check(path)
-    if status:
-        log.info("PEP8 compliance check PASS")
-        return 0
-    else:
-        log.error("PEP8 compliance FAIL")
-        return 1
+    def take_action(self, parsed_args):
+        paths = parsed_args.path
+        if not paths:
+            paths = [os.getcwd()]
 
+        style_checker = StyleChecker(parsed_args, logger=self.log)
 
-def set_arguments(parser):
-    command = 'style'
-    pstyle = parser.add_parser(command,
-                               help='check code compliance to PEP8')
-    pstyle.add_argument('path', type=str,
-                        help='Path to check (empty for full tree check)',
-                        nargs='*',
-                        default=None)
-    pstyle.add_argument('--disable', type=str,
-                        help='Disable the pep8 errors. Default: %(default)s',
-                        default='E501,E265,W601,E402')
-    pstyle.add_argument('--fix', action='store_true', default=False,
-                        help='Fix any style problems found (with autopep8)')
-    pstyle.add_argument('--max-line-length', type=int, default=79,
-                        help=('set maximum allowed line length. Default: '
-                              '%(default)s'))
-    return (command, run_style)
+        status = True
+        for path in paths:
+            status &= style_checker.check(path)
+        if status:
+            self.log.info("PEP8 compliance check PASS")
+            return 0
+        else:
+            self.log.error("PEP8 compliance FAIL")
+            return 1

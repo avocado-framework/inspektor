@@ -15,55 +15,38 @@
 """
 Implements the base inspektor application.
 """
-import logging
-from argparse import ArgumentParser
+import sys
 
-from .. import lint
-from .. import reindent
-from .. import style
-from .. import check
-from .. import license
-
-log = logging.getLogger("inspektor.app")
-
-ERROR_INVALID_ARGS = 1
-ERROR_INTERRUPTED = 3
+from cliff.app import App
+from cliff.commandmanager import CommandManager
 
 
-class InspektorApp(object):
-
-    """
-    Basic inspektor application.
-    """
+class InspektorApp(App):
 
     def __init__(self):
-        self.actions = {}
-        self.arg_parser = ArgumentParser(description='Inspektor code check')
-        self.arg_parser.add_argument('-v', '--verbose', action='store_true',
-                                     help=('print extra debug messages '
-                                           '(alters behavior of the lint '
-                                           'subcommand)'),
-                                     dest='verbose')
-        self.arg_parser.add_argument('--exclude', type=str,
-                                     help='Quoted string containing paths or '
-                                          'patterns to be excluded from '
-                                          'checking, comma separated')
-        subparsers = self.arg_parser.add_subparsers(title='subcommands',
-                                                    description='valid subcommands',
-                                                    help='subcommand help',
-                                                    dest='subcommand')
-        for mod in (lint, reindent, style, check, license):
-            command, func = mod.set_arguments(subparsers)
-            self.actions[command] = func
-        self.args = self.arg_parser.parse_args()
+        super(InspektorApp, self).__init__(
+            description='Inspektor python code checker and fixer',
+            version='0.4.0',
+            command_manager=CommandManager('inspektor.app'),
+            deferred_help=True,
+            )
 
-    def run(self):
-        try:
-            if self.args.subcommand is None:
-                self.arg_parser.print_usage()
-                return ERROR_INVALID_ARGS
-            else:
-                return self.actions[self.args.subcommand](self.args)
-        except KeyboardInterrupt:
-            log.error('User pressed Ctrl+C, exiting...')
-            return ERROR_INTERRUPTED
+    def initialize_app(self, argv):
+        self.LOG.debug('initialize_app')
+
+    def prepare_to_run_command(self, cmd):
+        self.LOG.debug('prepare_to_run_command %s', cmd.__class__.__name__)
+
+    def clean_up(self, cmd, result, err):
+        self.LOG.debug('clean_up %s', cmd.__class__.__name__)
+        if err:
+            self.LOG.debug('got an error: %s', err)
+
+
+def main(argv=sys.argv[1:]):
+    inspekt = InspektorApp()
+    return inspekt.run(argv)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

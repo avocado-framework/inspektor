@@ -13,8 +13,8 @@
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
 import logging
-import subprocess
 import shlex
+import subprocess
 import time
 
 from inspektor import exceptions

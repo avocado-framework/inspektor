@@ -16,17 +16,17 @@ import logging
 import os
 import tempfile
 
+from cliff.command import Command
+
+from . import inspector
 from . import lint
 from . import reindent
 from . import style
-from . import inspector
-from . import vcs
 from . import utils
+from . import vcs
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')
-
-log = logging.getLogger("inspektor.check")
 
 # Rely on built-in recursion limit to limit number of directories searched
 
@@ -120,9 +120,11 @@ class FileChecker(object):
 
 class PatchChecker(FileChecker):
 
-    def __init__(self, args, patch=None, patchwork_id=None, github_id=None):
+    def __init__(self, args, patch=None, patchwork_id=None, github_id=None,
+                 logger=logging.getLogger('')):
         FileChecker.__init__(self, args)
         self.base_dir = TMP_FILE_DIR
+        self.log = logger
 
         if patch:
             self.patch = os.path.abspath(patch)
@@ -141,11 +143,11 @@ class PatchChecker(FileChecker):
 
         changed_files_before = self.vcs.get_modified_files()
         if changed_files_before:
-            log.error("Repository has changed files prior to patch "
-                      "application")
+            self.log.error("Repository has changed files prior to patch "
+                           "application")
             answer = utils.ask("Would you like to revert them?")
             if answer == "n":
-                log.error("Not safe to proceed without reverting files.")
+                self.log.error("Not safe to proceed without reverting files.")
                 return 1
             else:
                 for changed_file in changed_files_before:
@@ -232,36 +234,46 @@ class PatchChecker(FileChecker):
         return self._check_files_modified_patch()
 
 
-def check_patch_github(args):
-    gh_id = args.gh_id
-    checker = PatchChecker(args, github_id=gh_id)
-    checker.validate()
-    if checker.check():
-        log.info("Github ID #%s check PASS", gh_id)
-        return 0
-    else:
-        log.info("Github ID #%s check FAIL", gh_id)
-        return 1
+class GithubCommand(Command):
+    """
+    check github pull requests
+    """
+    log = logging.getLogger(__name__)
 
+    def get_parser(self, prog_name):
+        parser = super(GithubCommand, self).get_parser(prog_name)
+        parser.add_argument('gh_id', type=int,
+                            help='GitHub Pull Request ID')
+        parser.add_argument('-p', '--parent-project', type=str,
+                            help=('Parent project name of the current repository.'
+                                  ' Default: %(default)s'),
+                            default='autotest')
+        parser.add_argument('--disable', type=str,
+                            help='Disable the pylint errors. Default: %(default)s',
+                            default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
+        parser.add_argument('--enable', type=str,
+                            help=('Enable the pylint errors '
+                                  '(takes place after disabled items are '
+                                  'processed). Default: %(default)s'),
+                            default='W0611')
+        parser.add_argument('--pep8-disable', type=str,
+                            help='Disable the pep8 errors. Default: %(default)s',
+                            default='E501,E265,W601,E402')
+        parser.add_argument('--exclude', type=str,
+                            help='Quoted string containing paths or '
+                                 'patterns to be excluded from '
+                                 'checking, comma separated')
+        parser.add_argument('--verbose', action='store_true',
+                            help='Print extra debug messages')
+        return parser
 
-def set_arguments(parser):
-    pgh = parser.add_parser('github',
-                            help='check GitHub Pull Requests')
-    pgh.add_argument('gh_id', type=int,
-                     help='GitHub Pull Request ID')
-    pgh.add_argument('-p', '--parent-project', type=str,
-                     help=('Parent project name of the current repository.'
-                           ' Default: %(default)s'),
-                     default='autotest')
-    pgh.add_argument('--disable', type=str,
-                     help='Disable the pylint errors. Default: %(default)s',
-                     default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
-    pgh.add_argument('--enable', type=str,
-                     help=('Enable the pylint errors '
-                           '(takes place after disabled items are '
-                           'processed). Default: %(default)s'),
-                     default='W0611')
-    pgh.add_argument('--pep8-disable', type=str,
-                     help='Disable the pep8 errors. Default: %(default)s',
-                     default='E501,E265,W601,E402')
-    return ('check', check_patch_github)
+    def take_action(self, parsed_args):
+        gh_id = parsed_args.gh_id
+        checker = PatchChecker(parsed_args, github_id=gh_id, logger=self.log)
+        checker.validate()
+        if checker.check():
+            self.log.info("Github ID #%s check PASS", gh_id)
+            return 0
+        else:
+            self.log.info("Github ID #%s check FAIL", gh_id)
+            return 1

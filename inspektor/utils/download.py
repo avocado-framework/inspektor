@@ -14,8 +14,9 @@
 
 import logging
 import os
-import socket
 import shutil
+import socket
+
 import urllib2
 import urlparse
 
