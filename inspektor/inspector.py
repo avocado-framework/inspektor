@@ -12,9 +12,9 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
-import fnmatch
 import os
 import stat
+import fnmatch
 
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
@@ -39,9 +39,9 @@ class PathInspector(object):
         for ign in (dot_ignore, git_dir_ignore, config_ignore):
             if os.path.isfile(ign):
                 with open(ign) as f:
-                    self.ignore.extend([x.strip() for x in f.readlines()])
+                    self.ignore += [x.strip() for x in f.readlines()]
                 break
-        self.ignore = set(self.ignore)
+        self.ignore = list(set(self.ignore))
 
     def get_first_line(self):
         first_line = ""
