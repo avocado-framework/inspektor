@@ -120,20 +120,16 @@ class FileChecker(object):
 
 class PatchChecker(FileChecker):
 
-    def __init__(self, args, patch=None, patchwork_id=None, github_id=None,
+    def __init__(self, args, patch=None,
                  logger=logging.getLogger('')):
-        FileChecker.__init__(self, args)
+        super(PatchChecker, self).__init__(args)
         self.base_dir = TMP_FILE_DIR
         self.log = logger
+        self.patch = patch
+        self.untracked_files = None
 
         if patch:
             self.patch = os.path.abspath(patch)
-
-        if patchwork_id:
-            self.patch = self._fetch_from_patchwork(patchwork_id)
-
-        if github_id:
-            self.patch = self._fetch_from_github(github_id)
 
     def validate(self):
         if not os.path.isfile(self.patch):
@@ -155,64 +151,7 @@ class PatchChecker(FileChecker):
 
         self.untracked_files = self.vcs.get_unknown_files()
 
-    def _get_patchwork_url(self, pw_id):
-        return "http://%s/patch/%s/mbox/" % (self.pwhost, pw_id)
-
-    def _download_from_patchwork(self, pw_id):
-        patch_url = self._get_patchwork_url(pw_id)
-        patch_dest = os.path.join(self.base_dir, 'patchwork-%s.patch' %
-                                  pw_id)
-        return utils.download.get_file(patch_url, patch_dest)
-
-    def _fetch_from_patchwork(self, pw_id):
-        """
-        Gets a patch file from patchwork and puts it under the cwd so it can
-        be applied.
-
-        :param pw_id: Patchwork patch id. It can be a string with
-                comma separated patchwork ids.
-        """
-        collection = os.path.join(self.base_dir, 'patchwork-%s.patch' %
-                                  utils.random_string(4))
-        collection_rw = open(collection, 'w')
-
-        for p_id in pw_id.split(","):
-            patch = self._download_from_patchwork(p_id)
-            # Patchwork sometimes puts garbage on the path, such as long
-            # sequences of underscores (_______). Get rid of those.
-            patch_ro = open(patch, 'r')
-            patch_contents = patch_ro.readlines()
-            patch_ro.close()
-            for line in patch_contents:
-                if not line.startswith("___"):
-                    collection_rw.write(line)
-        collection_rw.close()
-
-        return collection
-
-    def _get_github_repo_name(self):
-        return self.vcs.get_repo_name()
-
-    def _get_github_url(self, gh_id):
-        """
-        Gets the correct github URL for the given project.
-        """
-        p_project = self.args.parent_project
-        repo = self._get_github_repo_name()
-        return ("https://github.com/%s/%s/pull/%s.patch" %
-                (p_project, repo, gh_id))
-
-    def _fetch_from_github(self, gh_id):
-        """
-        Gets a patch file from patchwork and puts it under the base dir.
-
-        :param gh_id: Patchwork patch id.
-        """
-        patch_url = self._get_github_url(gh_id)
-        patch_dest = os.path.join(self.base_dir, 'github-%s.patch' % gh_id)
-        return utils.download.get_file(patch_url, patch_dest)
-
-    def _check_files_modified_patch(self):
+    def check_modified_files(self):
         files_failed_check = []
 
         modified_files = self.vcs.get_modified_files_patch(self.untracked_files,
@@ -231,7 +170,57 @@ class PatchChecker(FileChecker):
 
     def check(self):
         self.vcs.apply_patch(self.patch)
-        return self._check_files_modified_patch()
+        passed_check = self.check_modified_files()
+        if passed_check:
+            self.log.info('Patch %s check PASS', self.patch)
+            return 0
+        else:
+            self.log.error('Patch %s check FAIL', self.patch)
+            return 1
+
+
+class GithubPatchChecker(PatchChecker):
+
+    def __init__(self, args, patch=None, logger=logging.getLogger('')):
+        super(GithubPatchChecker, self).__init__(args=args, patch=patch,
+                                                 logger=logger)
+        self.github_id = args.gh_id
+        self.github_parent_project = args.parent_project
+        assert self.github_id is not None
+        assert self.github_parent_project is not None
+        self.patch = self._fetch_from_github()
+
+    def _get_github_repo_name(self):
+        return self.vcs.get_repo_name()
+
+    def _get_github_url(self):
+        """
+        Gets the correct github URL for the given project.
+        """
+        repo = self._get_github_repo_name()
+        return ("https://github.com/%s/%s/pull/%s.patch" %
+                (self.github_parent_project, repo, self.github_id))
+
+    def _fetch_from_github(self):
+        """
+        Gets a patch file from patchwork and puts it under the base dir.
+
+        :param gh_id: Patchwork patch id.
+        """
+        patch_url = self._get_github_url()
+        patch_dest = os.path.join(self.base_dir,
+                                  'github-%s.patch' % self.github_id)
+        return utils.download.get_file(patch_url, patch_dest)
+
+    def check(self):
+        self.vcs.apply_patch(self.patch)
+        passed_check = self.check_modified_files()
+        if passed_check:
+            self.log.info('Github PR %s check PASS', self.github_id)
+            return 0
+        else:
+            self.log.error('Github PR %s check FAIL', self.github_id)
+            return 1
 
 
 class GithubCommand(Command):
@@ -245,9 +234,9 @@ class GithubCommand(Command):
         parser.add_argument('gh_id', type=int,
                             help='GitHub Pull Request ID')
         parser.add_argument('-p', '--parent-project', type=str,
-                            help=('Parent project name of the current repository.'
-                                  ' Default: %(default)s'),
-                            default='autotest')
+                            help=('Github organization. '
+                                  'Default: %(default)s'),
+                            default='avocado-framework')
         parser.add_argument('--disable', type=str,
                             help='Disable the pylint errors. Default: %(default)s',
                             default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
@@ -268,12 +257,6 @@ class GithubCommand(Command):
         return parser
 
     def take_action(self, parsed_args):
-        gh_id = parsed_args.gh_id
-        checker = PatchChecker(parsed_args, github_id=gh_id, logger=self.log)
+        checker = GithubPatchChecker(parsed_args, logger=self.log)
         checker.validate()
-        if checker.check():
-            self.log.info("Github ID #%s check PASS", gh_id)
-            return 0
-        else:
-            self.log.info("Github ID #%s check FAIL", gh_id)
-            return 1
+        return checker.check()
