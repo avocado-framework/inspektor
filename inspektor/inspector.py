@@ -25,7 +25,7 @@ class PathInspector(object):
     def __init__(self, path, args):
         self.args = args
         self.path = path
-        self.ignore = ['*~', '*#', '*.swp', '*.py?', '*.o']
+        self.ignore = ['*~', '*#', '*.swp', '*.py?', '*.o', '.git', '.svn']
         if self.args.exclude:
             self.ignore += self.args.exclude.split(',')
         self._read_gitignore()
@@ -77,9 +77,12 @@ class PathInspector(object):
         return self.is_script(language='python')
 
     def is_toignore(self):
-        for pat in self.ignore:
-            if fnmatch.fnmatch(self.path, pat):
+        path = self.path
+        if path.startswith('./'):
+            path = path[2:]
+        for pattern in self.ignore:
+            if fnmatch.fnmatch(path, pattern):
                 return True
-            if self.path.startswith(os.path.abspath(pat)):
+            if self.path.startswith(os.path.abspath(pattern)):
                 return True
         return False
