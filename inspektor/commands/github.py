@@ -13,7 +13,7 @@ import logging
 
 from cliff.command import Command
 
-from inspektor.check import GithubPatchChecker
+from inspektor.patch import GithubPatchChecker
 
 
 class GithubCommand(Command):
