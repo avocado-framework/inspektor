@@ -208,11 +208,11 @@ class Reindenter(object):
 
     def check_file(self, path):
         """
-        Check one regular file with pylint for py syntax errors.
+        Check one regular file for indentation errors.
 
         :param path: Path to a regular file.
         :return: False, if reindenter found problems, True, if reindenter
-                 didn't find problems, or path is not a python module or
+                 didn't find problems, path is not a python module or
                  script.
         """
         inspector = PathInspector(path=path, args=self.args)
