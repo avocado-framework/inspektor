@@ -26,7 +26,7 @@ except ImportError:
 from cliff.command import Command
 
 from .inspector import PathInspector
-from . import stacktrace
+from .utils import stacktrace
 
 
 def _rstrip(line, JUNK='\n \t'):

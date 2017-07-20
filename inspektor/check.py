@@ -23,7 +23,7 @@ from . import lint
 from . import reindent
 from . import style
 from . import utils
-from . import vcs
+from .utils import vcs
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')

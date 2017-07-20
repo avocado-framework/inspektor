@@ -17,7 +17,7 @@ import shlex
 import subprocess
 import time
 
-from inspektor import exceptions
+from . import exceptions
 
 log = logging.getLogger('inspektor.utils')
 

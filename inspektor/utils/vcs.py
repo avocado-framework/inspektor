@@ -18,9 +18,9 @@ Module that has models for version control systems, for inspektor scripts.
 import logging
 import os
 
+from . import ask
 from . import exceptions
-from . import utils
-from .utils import process
+from . import process
 
 
 class VCS(object):
@@ -257,7 +257,7 @@ class SubVersionBackend(object):
             for untracked_file in add_to_vcs:
                 self.log.info(untracked_file)
             self.log.info("Might need to be added to svn")
-            answer = utils.ask("Would you like to add them to svn ?")
+            answer = ask("Would you like to add them to svn ?")
             if answer == "y":
                 for untracked_file in add_to_vcs:
                     self.add_untracked_file(untracked_file)
@@ -378,8 +378,8 @@ class GitBackend(object):
         except exceptions.CmdError:
             self.log.error("branch %s already exists!"
                            % branch)
-            answer = utils.ask("What would you like to do?",
-                               options="Abort/Delete/Rename/OldBase/NewBase")
+            answer = ask("What would you like to do?",
+                         options="Abort/Delete/Rename/OldBase/NewBase")
             if not answer:
                 answer = "A"
             answer = answer[0].upper()

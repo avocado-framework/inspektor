@@ -32,7 +32,7 @@ except ImportError:
     AUTOPEP8_CAPABLE = False
 
 from .inspector import PathInspector
-from . import stacktrace
+from .utils import stacktrace
 from .utils import process
 
 
