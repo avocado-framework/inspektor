@@ -14,7 +14,7 @@ import os
 
 from cliff.command import Command
 
-from inspektor.reindent import Reindenter
+from inspektor.indent import Reindenter
 
 
 class IndentCommand(Command):

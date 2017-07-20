@@ -17,7 +17,7 @@ import os
 import tempfile
 
 from . import lint
-from . import reindent
+from . import indent
 from . import style
 from . import utils
 from .path import PathChecker
@@ -49,7 +49,7 @@ class FileChecker(object):
         assert args.pep8_disable is not None
         self.args = args
         self.linter = lint.Linter(self.args)
-        self.indenter = reindent.Reindenter(self.args)
+        self.indenter = indent.Reindenter(self.args)
         # Tweak --disable option for StyleChecker
         self.args.disable = self.args.pep8_disable
         self.style_checker = style.StyleChecker(self.args)
