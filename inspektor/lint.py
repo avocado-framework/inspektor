@@ -21,7 +21,6 @@ try:
 except ImportError:
     from os import walk
 
-from cliff.command import Command
 from pylint.lint import Run
 
 from .inspector import PathInspector
@@ -114,48 +113,3 @@ class Linter(object):
         else:
             self.log.error("Invalid location '%s'", path)
             return False
-
-
-class LintCommand(Command):
-    """
-    check for errors with pylint
-    """
-    log = logging.getLogger(__name__)
-
-    def get_parser(self, prog_name):
-        parser = super(LintCommand, self).get_parser(prog_name)
-        parser.add_argument('path', type=str,
-                            help='Path to check (empty for full tree check)',
-                            nargs='*',
-                            default=None)
-        parser.add_argument('--disable', type=str,
-                            help='Disable the pylint errors. Default: %(default)s',
-                            default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
-        parser.add_argument('--enable', type=str,
-                            help=('Enable the pylint errors '
-                                  '(takes place after disabled items are '
-                                  'processed). Default: %(default)s'),
-                            default='W0611')
-        parser.add_argument('--exclude', type=str,
-                            help='Quoted string containing paths or '
-                                 'patterns to be excluded from '
-                                 'checking, comma separated')
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
-        return parser
-
-    def take_action(self, parsed_args):
-        if not parsed_args.path:
-            parsed_args.path = [os.getcwd()]
-
-        linter = Linter(parsed_args, logger=self.log)
-
-        status = True
-        for path in parsed_args.path:
-            status &= linter.check(path)
-        if status:
-            self.log.info("Syntax check PASS")
-            return 0
-        else:
-            self.log.error("Syntax check FAIL")
-            return 1

@@ -14,6 +14,7 @@
 
 # pylint: disable=E0611
 import sys
+
 from setuptools import setup, find_packages
 
 PROJECT = 'inspektor'
@@ -76,11 +77,11 @@ setup(
             'inspekt = inspektor.cli.app:main'
         ],
         'inspektor.app': [
-            'lint = inspektor.lint:LintCommand',
-            'indent = inspektor.reindent:ReindentCommand',
-            'style = inspektor.style:StyleCommand',
-            'github = inspektor.check:GithubCommand',
-            'license = inspektor.license:LicenseCommand',
+            'lint = inspektor.commands.lint:LintCommand',
+            'indent = inspektor.commands.indent:IndentCommand',
+            'style = inspektor.commands.style:StyleCommand',
+            'github = inspektor.commands.github:GithubCommand',
+            'license = inspektor.commands.license:LicenseCommand',
         ],
     },
 
