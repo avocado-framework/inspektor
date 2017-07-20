@@ -10,10 +10,56 @@
 # See LICENSE for more details.
 
 import logging
+import os
 
 from cliff.command import Command
 
-from inspektor.patch import GithubPatchChecker
+from inspektor import utils
+from inspektor.patch import PatchChecker
+
+
+class GithubPatchChecker(PatchChecker):
+
+    def __init__(self, args, patch=None, logger=logging.getLogger('')):
+        super(GithubPatchChecker, self).__init__(args=args, patch=patch,
+                                                 logger=logger)
+        self.github_id = args.gh_id
+        self.github_parent_project = args.parent_project
+        assert self.github_id is not None
+        assert self.github_parent_project is not None
+        self.patch = self._fetch_from_github()
+
+    def _get_github_repo_name(self):
+        return self.vcs.get_repo_name()
+
+    def _get_github_url(self):
+        """
+        Gets the correct github URL for the given project.
+        """
+        repo = self._get_github_repo_name()
+        return ("https://github.com/%s/%s/pull/%s.patch" %
+                (self.github_parent_project, repo, self.github_id))
+
+    def _fetch_from_github(self):
+        """
+        Gets a patch file from patchwork and puts it under the base dir.
+
+        :param gh_id: Patchwork patch id.
+        """
+        patch_url = self._get_github_url()
+        patch_dest = os.path.join(self.base_dir,
+                                  'github-%s.patch' % self.github_id)
+        return utils.download.get_file(patch_url, patch_dest)
+
+    def check(self):
+        self.vcs.apply_patch(self.patch)
+        passed_check = self.check_modified_files()
+        if passed_check:
+            self.log.info('Github PR %s check PASS', self.github_id)
+            return 0
+        else:
+            self.log.error('Github PR %s check FAIL', self.github_id)
+            return 1
 
 
 class GithubCommand(Command):
