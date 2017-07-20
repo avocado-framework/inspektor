@@ -20,7 +20,7 @@ PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
 
 
-class PathInspector(object):
+class PathChecker(object):
 
     def __init__(self, path, args):
         self.args = args

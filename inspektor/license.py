@@ -20,7 +20,7 @@ try:
 except ImportError:
     from os import walk
 
-from .inspector import PathInspector
+from .path import PathChecker
 
 
 LICENSE_SNIPPET_GPLV2 = """# This program is free software; you can redistribute it and/or modify
@@ -80,16 +80,16 @@ class LicenseChecker(object):
         return not self.failed_paths
 
     def check_file(self, path):
-        inspector = PathInspector(path=path, args=self.args)
-        if inspector.is_toignore():
+        checker = PathChecker(path=path, args=self.args)
+        if checker.is_toignore():
             return True
         # Don't put license info in empty __init__.py files.
-        if not inspector.is_python() or inspector.is_empty():
+        if not checker.is_python() or checker.is_empty():
             return True
 
         first_line = None
-        if inspector.is_script("python"):
-            first_line = inspector.get_first_line()
+        if checker.is_script("python"):
+            first_line = checker.get_first_line()
 
         new_content = None
         with open(path, 'r') as inspected_file:

@@ -30,7 +30,7 @@ try:
 except ImportError:
     AUTOPEP8_CAPABLE = False
 
-from .inspector import PathInspector
+from .path import PathChecker
 from .utils import stacktrace
 from .utils import process
 
@@ -66,10 +66,10 @@ class StyleChecker(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        inspector = PathInspector(path=path, args=self.args)
-        if inspector.is_toignore():
+        checker = PathChecker(path=path, args=self.args)
+        if checker.is_toignore():
             return True
-        if not inspector.is_python():
+        if not checker.is_python():
             return True
         try:
             opt_obj = pycodestyle.StyleGuide().options

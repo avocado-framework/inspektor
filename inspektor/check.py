@@ -16,11 +16,11 @@ import logging
 import os
 import tempfile
 
-from . import inspector
 from . import lint
 from . import reindent
 from . import style
 from . import utils
+from .path import PathChecker
 from .utils import vcs
 
 TMP_FILE_DIR = tempfile.gettempdir()
@@ -92,9 +92,9 @@ class FileChecker(object):
         result = True
         if os.path.isdir(path):
             return result
-        path_inspector = inspector.PathInspector(path, self.args)
-        path_is_script = path_inspector.is_script()
-        path_is_exec = path_inspector.has_exec_permission()
+        checker = PathChecker(path, self.args)
+        path_is_script = checker.is_script()
+        path_is_exec = checker.has_exec_permission()
         if path_is_script:
             if not path_is_exec:
                 result = False

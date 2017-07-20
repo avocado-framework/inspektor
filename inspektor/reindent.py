@@ -24,7 +24,7 @@ try:
 except ImportError:
     from os import walk
 
-from .inspector import PathInspector
+from .path import PathChecker
 from .utils import stacktrace
 
 
@@ -214,10 +214,10 @@ class Reindenter(object):
                  didn't find problems, path is not a python module or
                  script.
         """
-        inspector = PathInspector(path=path, args=self.args)
-        if inspector.is_toignore():
+        checker = PathChecker(path=path, args=self.args)
+        if checker.is_toignore():
             return True
-        if not inspector.is_python():
+        if not checker.is_python():
             return True
         f = open(path)
         r = Run(f)
