@@ -214,11 +214,10 @@ class Reindenter(object):
                  didn't find problems, path is not a python module or
                  script.
         """
-        checker = PathChecker(path=path, args=self.args)
-        if checker.is_toignore():
+        checker = PathChecker(path=path, args=self.args, label='Indent')
+        if not checker.check_attributes('python'):
             return True
-        if not checker.is_python():
-            return True
+
         f = open(path)
         r = Run(f)
         f.close()

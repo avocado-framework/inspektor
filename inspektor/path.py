@@ -15,20 +15,78 @@
 import fnmatch
 import os
 import stat
+import logging
 
 PY_EXTENSIONS = ['.py']
 SHEBANG = '#!'
 
 
+class PathAttributes(object):
+    def __init__(self, path, ignore_patterns):
+        self._path = path
+        self._ignore_patterns = ignore_patterns
+
+    def __str__(self):
+        return self._path
+
+    def first_line(self):
+        if os.path.isfile(self._path):
+            with open(self._path, "r") as checked_file:
+                return checked_file.readline()
+
+    def executable(self):
+        mode = os.stat(self._path)[stat.ST_MODE]
+        return mode & stat.S_IXUSR
+
+    def not_empty(self):
+        return not self.empty()
+
+    def empty(self):
+        size = os.stat(self._path)[stat.ST_SIZE]
+        return size == 0
+
+    def script(self, language=None):
+        first_line = self.first_line()
+        if first_line:
+            if first_line.startswith(SHEBANG):
+                if language is None:
+                    return True
+                elif language in first_line:
+                    return True
+        return False
+
+    def python(self):
+        for extension in PY_EXTENSIONS:
+            if self._path.endswith(extension):
+                return True
+
+        return self.script(language='python')
+
+    def ignore(self):
+        path = self._path
+        if path.startswith('./'):
+            path = path[2:]
+        for pattern in self._ignore_patterns:
+            if fnmatch.fnmatch(path, pattern):
+                return True
+            if self._path.startswith(os.path.abspath(pattern)):
+                return True
+        return False
+
+
 class PathChecker(object):
 
-    def __init__(self, path, args):
+    def __init__(self, path, args, label=None, logger=logging.getLogger('')):
         self.args = args
-        self.path = path
         self.ignore = ['*~', '*#', '*.swp', '*.py?', '*.o', '.git', '.svn']
         if self.args.exclude:
             self.ignore += self.args.exclude.split(',')
         self._read_gitignore()
+        self.path = PathAttributes(path, ignore_patterns=self.ignore)
+        if label is None:
+            label = 'Check'
+        self.label = label
+        self.log = logger
 
     def _read_gitignore(self):
         config_ignore = '{home}/.config/git/ignore'.format(
@@ -43,46 +101,12 @@ class PathChecker(object):
                 break
         self.ignore = list(set(self.ignore))
 
-    def get_first_line(self):
-        first_line = ""
-        if os.path.isfile(self.path):
-            checked_file = open(self.path, "r")
-            first_line = checked_file.readline()
-            checked_file.close()
-        return first_line
-
-    def has_exec_permission(self):
-        mode = os.stat(self.path)[stat.ST_MODE]
-        return mode & stat.S_IXUSR
-
-    def is_empty(self):
-        size = os.stat(self.path)[stat.ST_SIZE]
-        return size == 0
-
-    def is_script(self, language=None):
-        first_line = self.get_first_line()
-        if first_line:
-            if first_line.startswith(SHEBANG):
-                if language is None:
-                    return True
-                elif language in first_line:
-                    return True
-        return False
-
-    def is_python(self):
-        for extension in PY_EXTENSIONS:
-            if self.path.endswith(extension):
-                return True
-
-        return self.is_script(language='python')
-
-    def is_toignore(self):
-        path = self.path
-        if path.startswith('./'):
-            path = path[2:]
-        for pattern in self.ignore:
-            if fnmatch.fnmatch(path, pattern):
-                return True
-            if self.path.startswith(os.path.abspath(pattern)):
-                return True
-        return False
+    def check_attributes(self, *args):
+        if self.path.ignore():
+            return False
+        checks_passed = True
+        for arg in args:
+            checks_passed &= getattr(self.path, arg)()
+        if checks_passed:
+            self.log.debug('%s: %s', self.label, self.path)
+        return checks_passed

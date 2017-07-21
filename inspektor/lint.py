@@ -95,12 +95,9 @@ class Linter(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        checker = PathChecker(path=path, args=self.args)
-        if checker.is_toignore():
+        checker = PathChecker(path=path, args=self.args, label='Lint')
+        if not checker.check_attributes('python'):
             return True
-        if not checker.is_python():
-            return True
-
         try:
             runner = Run(self.get_opts() + [path], exit=False)
             if runner.linter.msg_status != 0:

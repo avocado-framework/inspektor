@@ -93,8 +93,8 @@ class FileChecker(object):
         if os.path.isdir(path):
             return result
         checker = PathChecker(path, self.args)
-        path_is_script = checker.is_script()
-        path_is_exec = checker.has_exec_permission()
+        path_is_script = checker.path.script()
+        path_is_exec = checker.path.executable()
         if path_is_script:
             if not path_is_exec:
                 result = False
