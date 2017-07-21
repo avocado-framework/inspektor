@@ -38,12 +38,17 @@ from .utils import process
 class StyleChecker(object):
 
     def __init__(self, args, logger=logging.getLogger('')):
-        self.args = args
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.log = logger
         self.failed_paths = []
-        self.log.info('PEP8 disabled: %s' % self.args.disable)
+        self.ignored_errors = ''
+        if hasattr(args, 'disable'):
+            self.ignored_errors = args.disable
+        elif hasattr(args, 'disable_style'):
+            self.ignored_errors = args.disable_style
+        self.args = args
+        self.log.info('PEP8 disabled: %s' % self.ignored_errors)
 
     def check_dir(self, path):
         """
@@ -73,7 +78,7 @@ class StyleChecker(object):
             return True
         try:
             opt_obj = pycodestyle.StyleGuide().options
-            ignore_list = self.args.disable.split(',') + list(opt_obj.ignore)
+            ignore_list = self.ignored_errors.split(',') + list(opt_obj.ignore)
             opt_obj.ignore = tuple(set(ignore_list))
             # pylint: disable=E1123
             runner = pycodestyle.Checker(filename=path, options=opt_obj)

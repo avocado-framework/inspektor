@@ -82,6 +82,7 @@ setup(
             'style = inspektor.commands.style:StyleCommand',
             'github = inspektor.commands.github:GithubCommand',
             'license = inspektor.commands.license:LicenseCommand',
+            'checkall = inspektor.commands.checkall:CheckAllCommand'
         ],
     },
 

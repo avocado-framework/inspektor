@@ -29,13 +29,19 @@ from .path import PathChecker
 class Linter(object):
 
     def __init__(self, args, logger=logging.getLogger('')):
-        assert args.disable is not None
-        assert args.enable is not None
+        self.ignored_errors = ''
+        if hasattr(args, 'disable'):
+            self.ignored_errors = args.disable
+        elif hasattr(args, 'disable_lint'):
+            self.ignored_errors = args.disable_lint
+        self.enabled_errors = ''
+        if hasattr(args, 'enable'):
+            self.enabled_errors = args.enable
+        elif hasattr(args, 'enable_lint'):
+            self.enabled_errors = args.enable_lint
         self.log = logger
         self.args = args
         self.verbose = args.verbose
-        self.ignored_errors = args.disable
-        self.enabled_errors = args.enable
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
         self.failed_paths = []
@@ -58,9 +64,9 @@ class Linter(object):
                         '"{msg_id}:{line:3d},{column}: {obj}: {msg}"')]
 
         if not self.verbose:
-            if self.args.disable:
+            if self.ignored_errors:
                 pylint_args.append('--disable=%s' % self.ignored_errors)
-            if self.args.enable:
+            if self.enabled_errors:
                 pylint_args.append('--enable=%s' % self.enabled_errors)
             pylint_args.append('--reports=no')
 
