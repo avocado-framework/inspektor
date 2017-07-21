@@ -90,7 +90,7 @@ class Linter(object):
                  find problems, or path is not a python module or script.
         """
         checker = PathChecker(path=path, args=self.args, label='Lint')
-        if not checker.check_attributes('python'):
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
         try:
             runner = Run(self.get_opts() + [path], exit=False)

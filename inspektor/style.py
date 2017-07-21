@@ -65,7 +65,7 @@ class StyleChecker(object):
                  find problems, or path is not a python module or script.
         """
         checker = PathChecker(path=path, args=self.args, label='Style')
-        if not checker.check_attributes('python'):
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
         try:

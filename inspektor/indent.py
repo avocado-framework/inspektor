@@ -211,7 +211,7 @@ class Reindenter(object):
                  script.
         """
         checker = PathChecker(path=path, args=self.args, label='Indent')
-        if not checker.check_attributes('python'):
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
         f = open(path)

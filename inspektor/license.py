@@ -75,12 +75,12 @@ class LicenseChecker(object):
     def check_file(self, path):
         checker = PathChecker(path=path, args=self.args, label='License')
         # Don't put license info in empty __init__.py files.
-        if not checker.check_attributes('python', 'not_empty'):
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
         first_line = None
         if checker.path.script('python'):
-            first_line = checker.path.first_line()
+            first_line = checker.path.first_line
 
         new_content = None
         with open(path, 'r') as inspected_file:
