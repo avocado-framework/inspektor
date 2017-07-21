@@ -96,6 +96,8 @@ class LicenseChecker(object):
                 content = content[1:]
             content = "".join(content)
             if self.base_license_contents not in content:
+                if not self.args.fix:
+                    return False
                 new_content = ""
                 if first_line is not None:
                     new_content += first_line

@@ -48,6 +48,9 @@ class LicenseCommand(Command):
                                  'checking, comma separated')
         parser.add_argument('--verbose', action='store_true',
                             help='Print extra debug messages')
+        parser.add_argument('--fix', action='store_true', default=False,
+                            help='Fix any style problems found '
+                                 '(needs autopep8 installed)')
         return parser
 
     def take_action(self, parsed_args):
