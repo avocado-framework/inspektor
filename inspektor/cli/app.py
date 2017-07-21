@@ -45,7 +45,10 @@ class InspektorApp(App):
 
 def main(argv=sys.argv[1:]):
     inspekt = InspektorApp()
-    return inspekt.run(argv)
+    try:
+        return inspekt.run(argv)
+    except KeyboardInterrupt:
+        inspekt.LOG.error('User requested to interrupt')
 
 
 if __name__ == '__main__':
