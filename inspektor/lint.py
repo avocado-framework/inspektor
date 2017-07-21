@@ -69,6 +69,8 @@ class Linter(object):
             if self.enabled_errors:
                 pylint_args.append('--enable=%s' % self.enabled_errors)
             pylint_args.append('--reports=no')
+            if sys.version_info[:2] > (2, 6):
+                pylint_args.append('--score=no')
 
         return pylint_args
 
