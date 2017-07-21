@@ -21,6 +21,7 @@ import six
 from . import download
 from . import process
 
+# pylint: disable=E0602
 if six.PY2:
     input = raw_input
 

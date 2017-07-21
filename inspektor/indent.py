@@ -19,11 +19,6 @@ import tokenize
 
 import six
 
-try:
-    from os.path import walk
-except ImportError:
-    from os import walk
-
 from .path import PathChecker
 from .utils import stacktrace
 
@@ -74,6 +69,7 @@ class Run(object):
         self.stats = []
 
     def run(self):
+        # pylint: disable=E1121
         if six.PY2:
             tokenize.tokenize(self.getline, self.tokeneater)
         else:
@@ -243,11 +239,9 @@ class Reindenter(object):
             return False
 
     def check_dir(self, path):
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                self.check_file(os.path.join(dirname, filename))
-
-        walk(path, visit, None)
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                self.check_file(os.path.join(root, filename))
         return not self.failed_paths
 
     def check(self, path):

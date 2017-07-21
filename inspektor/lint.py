@@ -16,11 +16,6 @@ import logging
 import os
 import sys
 
-try:
-    from os.path import walk
-except ImportError:
-    from os import walk
-
 from pylint.lint import Run
 
 from .path import PathChecker
@@ -80,11 +75,10 @@ class Linter(object):
 
         :param path: Path to a directory.
         """
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                self.check_file(os.path.join(dirname, filename))
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                self.check_file(os.path.join(root, filename))
 
-        walk(path, visit, None)
         return not self.failed_paths
 
     def check_file(self, path):

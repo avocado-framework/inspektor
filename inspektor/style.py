@@ -16,11 +16,6 @@ import logging
 import os
 import sys
 
-try:
-    from os.path import walk
-except ImportError:
-    from os import walk
-
 import pycodestyle
 
 try:
@@ -56,11 +51,9 @@ class StyleChecker(object):
 
         :param path: Path to a directory.
         """
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                self.check_file(os.path.join(dirname, filename))
-
-        walk(path, visit, None)
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                self.check_file(os.path.join(root, filename))
         return not self.failed_paths
 
     def check_file(self, path):
