@@ -51,7 +51,7 @@ setup(
     download_url='https://github.com/avocado-framework/inspektor/tarball/master',
 
     classifiers=['Development Status :: 3 - Alpha',
-                 'License :: OSI Approved :: GNU Public License 2',
+                 'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2',
                  'Programming Language :: Python :: 2.7',
