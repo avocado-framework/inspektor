@@ -15,15 +15,8 @@
 import logging
 import os
 
-try:
-    from os.path import walk
-except ImportError:
-    from os import walk
+from .path import PathChecker
 
-from .inspector import PathInspector
-
-
-log = logging.getLogger("inspektor.license")
 
 LICENSE_SNIPPET_GPLV2 = """# This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,12 +48,13 @@ default_license = 'gplv2_later'
 
 class LicenseChecker(object):
 
-    def __init__(self, args):
+    def __init__(self, args, logger=logging.getLogger('')):
         license_type = args.license
         cpyright = args.copyright
         author = args.author
         self.args = args
         self.failed_paths = []
+        self.log = logger
 
         self.license_contents = license_mapping[license_type]
         self.base_license_contents = self.license_contents
@@ -73,24 +67,20 @@ class LicenseChecker(object):
             self.license_contents += "# " + author + "\n"
 
     def check_dir(self, path):
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                self.check_file(os.path.join(dirname, filename))
-
-        walk(path, visit, None)
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                self.check_file(os.path.join(root, filename))
         return not self.failed_paths
 
     def check_file(self, path):
-        inspector = PathInspector(path=path, args=self.args)
-        if inspector.is_toignore():
-            return True
+        checker = PathChecker(path=path, args=self.args, label='License')
         # Don't put license info in empty __init__.py files.
-        if not inspector.is_python() or inspector.is_empty():
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
         first_line = None
-        if inspector.is_script("python"):
-            first_line = inspector.get_first_line()
+        if checker.path.script('python'):
+            first_line = checker.path.first_line
 
         new_content = None
         with open(path, 'r') as inspected_file:
@@ -99,6 +89,8 @@ class LicenseChecker(object):
                 content = content[1:]
             content = "".join(content)
             if self.base_license_contents not in content:
+                if not self.args.fix:
+                    return False
                 new_content = ""
                 if first_line is not None:
                     new_content += first_line
@@ -119,43 +111,5 @@ class LicenseChecker(object):
         elif os.path.isdir(path):
             return self.check_dir(path)
         else:
-            log.warning("Invalid location '%s'", path)
+            self.log.error("Invalid location '%s'", path)
             return False
-
-
-def run_license(args):
-    path = args.path
-
-    if not path:
-        path = os.getcwd()
-
-    checker = LicenseChecker(args)
-
-    if checker.check(path):
-        log.info("License check PASS")
-        return 0
-    else:
-        log.error("License check FAIL")
-        return 1
-
-
-def set_arguments(parser):
-    command = 'license'
-    plicense = parser.add_parser(command,
-                                 help='check for presence of license files')
-    plicense.add_argument('path', type=str,
-                          help='Path to check (empty for full tree check)',
-                          nargs='?',
-                          default="")
-    plicense.add_argument('--license', type=str,
-                          help=('License type. Supported license types: %s. '
-                                'Default: %s' %
-                                (license_mapping.keys(), default_license)),
-                          default="gplv2_later")
-    plicense.add_argument('--copyright', type=str,
-                          help='Copyright string. Ex: "Copyright (c) 2013-2014 FooCorp"',
-                          default="")
-    plicense.add_argument('--author', type=str,
-                          help='Author string. Ex: "Author: Brandon Lindon <brandon.lindon@foocorp.com>"',
-                          default="")
-    return (command, run_license)

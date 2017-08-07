@@ -43,7 +43,7 @@ build-rpm-all: source
 		 -ba inspektor.spec
 
 check:
-	selftests/checkall
+	inspekt checkall --verbose
 
 clean:
 	$(PYTHON) setup.py clean

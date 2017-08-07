@@ -11,12 +11,13 @@ scripts.
 Inspektor knows how to:
 
 1) Check code with the help of `pylint`.
-2) Check indentation of your code, correcting it if necessary.
-3) Check whether your code is PEP8 compliant, correcting it if necessary.
-4) Run unittests inside your tree, provided they follow some conventions.
-5) If your project is hosted on the autotest github area, it can apply pull
+2) Check indentation of your code with the help of `pycodestyle`,
+   correcting it if you so deem appropriate.
+3) Check whether your code is PEP8 compliant, correcting it if necessary
+   (only works if you have `autopep8` installed) if you so deem appropriate.
+4) If your project is hosted on the autotest github area, it can apply pull
    requests made against it, and check if it introduced any regression from
-   the metrics outlined above
+   the metrics outlined above.
 
 This all assumes you're working on a version control checkout of your code.
 Currently inspektor knows how to handle subversion and git.
@@ -24,45 +25,27 @@ Currently inspektor knows how to handle subversion and git.
 Installing inspektor
 --------------------
 
-If there are no packages for your distro, you'll have to resort to good old:
+You can get inspektor through pip:
 
 ::
 
-    $ sudo python setup.py install
+    $ sudo pip install inspektor
 
-Fedora
-~~~~~~
-
-Fedora users lmr's COPR:
-
-http://copr.fedoraproject.org/coprs/lmr/Autotest/
-
-Add the COPR repository, which, just for reference, on a Fedora 20 could be done through:
+But you should avoid doing that if possible. A virtual environment deployment
+tends to be better, since each installation is restricted to each environment:
 
 ::
 
-    $ sudo curl http://copr.fedoraproject.org/coprs/lmr/Autotest/repo/fedora-20-i386/lmr-Autotest-fedora-20-i386.repo > /etc/yum.repos.d/autotest.repo
+    $ virtualenv .venv
+    $ source .venv/bin/activate
+    $ pip install inspektor
 
-Users of Fedora 19 or Rawhide can use the other repo files available in the
-COPR web page. Now you can install it using:
-
-::
-
-    $ sudo yum install inspektor
-
-Ubuntu
-~~~~~~
-
-lmr's PPA:
-
-https://launchpad.net/~lmr/+archive/autotest
-
-Add the repos through the instructions on that page. Now you can install it
-using:
+If you are developing inspektor, you can install it in your virtual environment
+as an editable package. From this source code tree root:
 
 ::
 
-    $ sudo apt-get install inspektor
+    $ pip install -e .
 
 Usage
 -----

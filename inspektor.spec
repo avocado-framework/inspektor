@@ -1,4 +1,4 @@
-%global inspektorversion 0.3.0
+%global inspektorversion 0.4.0
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
@@ -10,11 +10,11 @@ Source: inspektor-%{inspektorversion}.tar.gz
 BuildArch: noarch
 
 %if "%{?dist}" == ".el6"
-Requires: python, pylint < 1.4, python-pep8, python-logutils
-BuildRequires: python2-devel, pylint < 1.4, python-pep8, python-logutils
+Requires: python, pylint < 1.4, python-pep8, python-logutils, python-six, python-cliff
+BuildRequires: python2-devel, pylint < 1.4, python-pep8, python-logutils, python-six, python-cliff
 %else
-Requires: python, pylint >= 1.3, python-pep8, python-logutils
-BuildRequires: python2-devel, pylint >= 1.3, python-pep8
+Requires: python, pylint >= 1.3, python-pep8, python-logutils, python-six, python-cliff
+BuildRequires: python2-devel, pylint >= 1.3, python-pep8, python-six, python-cliff
 %endif
 
 %description
@@ -44,6 +44,9 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Wed Jul 19 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.4.0-0
+- New upstream version 0.4.0
+- Application is now based on the cliff python app framework
 * Fri May 5 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.3.0-0
 - New upstream version 0.3.0
 * Mon Jan 18 2016 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.2.1-0

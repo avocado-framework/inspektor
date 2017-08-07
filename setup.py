@@ -13,27 +13,78 @@
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
 # pylint: disable=E0611
-from setuptools import setup
 import sys
 
+from setuptools import setup, find_packages
+
+PROJECT = 'inspektor'
+
+# Change docs/sphinx/conf.py too!
+VERSION = '0.4.0'
+
+REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
-    REQUIRES = ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1', 'logutils>=0.3.3']
+    REQUIRES += ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1',
+                 'logutils>=0.3.3', 'stevedore<=1.10', 'cliff<=1.15.0',
+                 'pbr<2.0,>=1.4']
 elif sys.version_info[:2] == (2, 7):
-    REQUIRES = ['pycodestyle>=2.0.0', 'pylint>=1.3']
+    REQUIRES += ['pycodestyle>=2.0.0', 'pylint>=1.3', 'cliff']
 elif sys.version_info[0] == 3:
-    REQUIRES = ['pycodestyle', 'pylint']
+    REQUIRES += ['pycodestyle', 'pylint', 'cliff']
 
+try:
+    long_description = open('README.rst', 'rt').read()
+except IOError:
+    long_description = ''
 
-setup(name='inspektor',
-      version='0.3.0',
-      description='Inspektor code checker',
-      author='Lucas Meneghel Rodrigues',
-      author_email='lookkas@gmail.com',
-      url='https://github.com/avocado-framework/inspektor',
-      packages=['inspektor',
-                'inspektor.cli',
-                'inspektor.utils'
-                ],
-      install_requires=REQUIRES,
-      scripts=['scripts/inspekt'],
-      )
+setup(
+    name=PROJECT,
+    version=VERSION,
+
+    description='Inspektor python code checker and fixer',
+    long_description=long_description,
+
+    author='Lucas Meneghel Rodrigues',
+    author_email='lookkas@gmail.com',
+
+    url='https://github.com/avocado-framework/inspektor',
+    download_url='https://github.com/avocado-framework/inspektor/tarball/master',
+
+    classifiers=['Development Status :: 3 - Alpha',
+                 'License :: OSI Approved :: GNU Public License 2',
+                 'Programming Language :: Python',
+                 'Programming Language :: Python :: 2',
+                 'Programming Language :: Python :: 2.7',
+                 'Programming Language :: Python :: 3',
+                 'Programming Language :: Python :: 3.6',
+                 'Intended Audience :: Developers',
+                 'Environment :: Console',
+                 ],
+
+    platforms=['Any'],
+
+    scripts=[],
+
+    provides=[],
+    install_requires=REQUIRES,
+
+    namespace_packages=[],
+    packages=find_packages(),
+    include_package_data=True,
+
+    entry_points={
+        'console_scripts': [
+            'inspekt = inspektor.cli.app:main'
+        ],
+        'inspektor.app': [
+            'lint = inspektor.commands.lint:LintCommand',
+            'indent = inspektor.commands.indent:IndentCommand',
+            'style = inspektor.commands.style:StyleCommand',
+            'github = inspektor.commands.github:GithubCommand',
+            'license = inspektor.commands.license:LicenseCommand',
+            'checkall = inspektor.commands.checkall:CheckAllCommand'
+        ],
+    },
+
+    zip_safe=False,
+)

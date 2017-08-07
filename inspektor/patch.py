@@ -16,17 +16,15 @@ import logging
 import os
 import tempfile
 
+from . import indent
 from . import lint
-from . import reindent
 from . import style
-from . import inspector
-from . import vcs
 from . import utils
+from .path import PathChecker
+from .utils import vcs
 
 TMP_FILE_DIR = tempfile.gettempdir()
 LOG_FILE_PATH = os.path.join(TMP_FILE_DIR, 'check-patch.log')
-
-log = logging.getLogger("inspektor.check")
 
 # Rely on built-in recursion limit to limit number of directories searched
 
@@ -51,7 +49,7 @@ class FileChecker(object):
         assert args.pep8_disable is not None
         self.args = args
         self.linter = lint.Linter(self.args)
-        self.indenter = reindent.Reindenter(self.args)
+        self.indenter = indent.Reindenter(self.args)
         # Tweak --disable option for StyleChecker
         self.args.disable = self.args.pep8_disable
         self.style_checker = style.StyleChecker(self.args)
@@ -94,9 +92,9 @@ class FileChecker(object):
         result = True
         if os.path.isdir(path):
             return result
-        path_inspector = inspector.PathInspector(path, self.args)
-        path_is_script = path_inspector.is_script()
-        path_is_exec = path_inspector.has_exec_permission()
+        checker = PathChecker(path, self.args)
+        path_is_script = checker.path.script
+        path_is_exec = checker.path.executable
         if path_is_script:
             if not path_is_exec:
                 result = False
@@ -120,18 +118,16 @@ class FileChecker(object):
 
 class PatchChecker(FileChecker):
 
-    def __init__(self, args, patch=None, patchwork_id=None, github_id=None):
-        FileChecker.__init__(self, args)
+    def __init__(self, args, patch=None,
+                 logger=logging.getLogger('')):
+        super(PatchChecker, self).__init__(args)
         self.base_dir = TMP_FILE_DIR
+        self.log = logger
+        self.patch = patch
+        self.untracked_files = None
 
         if patch:
             self.patch = os.path.abspath(patch)
-
-        if patchwork_id:
-            self.patch = self._fetch_from_patchwork(patchwork_id)
-
-        if github_id:
-            self.patch = self._fetch_from_github(github_id)
 
     def validate(self):
         if not os.path.isfile(self.patch):
@@ -141,11 +137,11 @@ class PatchChecker(FileChecker):
 
         changed_files_before = self.vcs.get_modified_files()
         if changed_files_before:
-            log.error("Repository has changed files prior to patch "
-                      "application")
+            self.log.error("Repository has changed files prior to patch "
+                           "application")
             answer = utils.ask("Would you like to revert them?")
             if answer == "n":
-                log.error("Not safe to proceed without reverting files.")
+                self.log.error("Not safe to proceed without reverting files.")
                 return 1
             else:
                 for changed_file in changed_files_before:
@@ -153,64 +149,7 @@ class PatchChecker(FileChecker):
 
         self.untracked_files = self.vcs.get_unknown_files()
 
-    def _get_patchwork_url(self, pw_id):
-        return "http://%s/patch/%s/mbox/" % (self.pwhost, pw_id)
-
-    def _download_from_patchwork(self, pw_id):
-        patch_url = self._get_patchwork_url(pw_id)
-        patch_dest = os.path.join(self.base_dir, 'patchwork-%s.patch' %
-                                  pw_id)
-        return utils.download.get_file(patch_url, patch_dest)
-
-    def _fetch_from_patchwork(self, pw_id):
-        """
-        Gets a patch file from patchwork and puts it under the cwd so it can
-        be applied.
-
-        :param pw_id: Patchwork patch id. It can be a string with
-                comma separated patchwork ids.
-        """
-        collection = os.path.join(self.base_dir, 'patchwork-%s.patch' %
-                                  utils.random_string(4))
-        collection_rw = open(collection, 'w')
-
-        for p_id in pw_id.split(","):
-            patch = self._download_from_patchwork(p_id)
-            # Patchwork sometimes puts garbage on the path, such as long
-            # sequences of underscores (_______). Get rid of those.
-            patch_ro = open(patch, 'r')
-            patch_contents = patch_ro.readlines()
-            patch_ro.close()
-            for line in patch_contents:
-                if not line.startswith("___"):
-                    collection_rw.write(line)
-        collection_rw.close()
-
-        return collection
-
-    def _get_github_repo_name(self):
-        return self.vcs.get_repo_name()
-
-    def _get_github_url(self, gh_id):
-        """
-        Gets the correct github URL for the given project.
-        """
-        p_project = self.args.parent_project
-        repo = self._get_github_repo_name()
-        return ("https://github.com/%s/%s/pull/%s.patch" %
-                (p_project, repo, gh_id))
-
-    def _fetch_from_github(self, gh_id):
-        """
-        Gets a patch file from patchwork and puts it under the base dir.
-
-        :param gh_id: Patchwork patch id.
-        """
-        patch_url = self._get_github_url(gh_id)
-        patch_dest = os.path.join(self.base_dir, 'github-%s.patch' % gh_id)
-        return utils.download.get_file(patch_url, patch_dest)
-
-    def _check_files_modified_patch(self):
+    def check_modified_files(self):
         files_failed_check = []
 
         modified_files = self.vcs.get_modified_files_patch(self.untracked_files,
@@ -229,39 +168,10 @@ class PatchChecker(FileChecker):
 
     def check(self):
         self.vcs.apply_patch(self.patch)
-        return self._check_files_modified_patch()
-
-
-def check_patch_github(args):
-    gh_id = args.gh_id
-    checker = PatchChecker(args, github_id=gh_id)
-    checker.validate()
-    if checker.check():
-        log.info("Github ID #%s check PASS", gh_id)
-        return 0
-    else:
-        log.info("Github ID #%s check FAIL", gh_id)
-        return 1
-
-
-def set_arguments(parser):
-    pgh = parser.add_parser('github',
-                            help='check GitHub Pull Requests')
-    pgh.add_argument('gh_id', type=int,
-                     help='GitHub Pull Request ID')
-    pgh.add_argument('-p', '--parent-project', type=str,
-                     help=('Parent project name of the current repository.'
-                           ' Default: %(default)s'),
-                     default='autotest')
-    pgh.add_argument('--disable', type=str,
-                     help='Disable the pylint errors. Default: %(default)s',
-                     default='W,R,C,E1002,E1101,E1103,E1120,F0401,I0011')
-    pgh.add_argument('--enable', type=str,
-                     help=('Enable the pylint errors '
-                           '(takes place after disabled items are '
-                           'processed). Default: %(default)s'),
-                     default='W0611')
-    pgh.add_argument('--pep8-disable', type=str,
-                     help='Disable the pep8 errors. Default: %(default)s',
-                     default='E501,E265,W601,E402')
-    return ('check', check_patch_github)
+        passed_check = self.check_modified_files()
+        if passed_check:
+            self.log.info('Patch %s check PASS', self.patch)
+            return 0
+        else:
+            self.log.error('Patch %s check FAIL', self.patch)
+            return 1

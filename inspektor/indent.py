@@ -12,20 +12,15 @@
 # Copyright: Red Hat 2013-2014
 # Author: Lucas Meneghel Rodrigues <lmr@redhat.com>
 
-import os
-import tokenize
 import logging
+import os
 import sys
+import tokenize
 
-try:
-    from os.path import walk
-except ImportError:
-    from os import walk
+import six
 
-from .inspector import PathInspector
-from . import stacktrace
-
-log = logging.getLogger("inspektor.reindent")
+from .path import PathChecker
+from .utils import stacktrace
 
 
 def _rstrip(line, JUNK='\n \t'):
@@ -74,7 +69,13 @@ class Run(object):
         self.stats = []
 
     def run(self):
-        tokenize.tokenize(self.getline, self.tokeneater)
+        # pylint: disable=E1121
+        if six.PY2:
+            tokenize.tokenize(self.getline, self.tokeneater)
+        else:
+            tokens = tokenize.generate_tokens(self.getline)
+            for _token in tokens:
+                self.tokeneater(*_token)
         # Remove trailing empty lines.
         lines = self.lines
         while lines and lines[-1] == "\n":
@@ -104,14 +105,14 @@ class Run(object):
                     want = have2want.get(have, -1)
                     if want < 0:
                         # Then it probably belongs to the next real stmt.
-                        for j in xrange(i + 1, len(stats) - 1):
+                        for j in range(i + 1, len(stats) - 1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 if have == _getlspace(lines[jline]):
                                     want = jlevel * 4
                                 break
                     if want < 0:
-                        for j in xrange(i - 1, -1, -1):
+                        for j in range(i - 1, -1, -1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 want = have + _getlspace(after[jline - 1]) - \
@@ -195,54 +196,52 @@ class Run(object):
 
 class Reindenter(object):
 
-    def __init__(self, args):
+    def __init__(self, args, logger=logging.getLogger('')):
         self.args = args
         self.failed_paths = []
+        self.log = logger
 
     def check_file(self, path):
         """
-        Check one regular file with pylint for py syntax errors.
+        Check one regular file for indentation errors.
 
         :param path: Path to a regular file.
         :return: False, if reindenter found problems, True, if reindenter
-                 didn't find problems, or path is not a python module or
+                 didn't find problems, path is not a python module or
                  script.
         """
-        inspector = PathInspector(path=path, args=self.args)
-        if inspector.is_toignore():
+        checker = PathChecker(path=path, args=self.args, label='Indent')
+        if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
-        if not inspector.is_python():
-            return True
+
         f = open(path)
         r = Run(f)
         f.close()
         try:
             if r.run():
-                log.error('Indentation check fail  : %s', path)
+                self.log.error('Indentation check fail  : %s', path)
                 self.failed_paths.append(path)
                 if self.args.fix:
                     f = open(path, "w")
                     r.write(f)
                     f.close()
-                    log.info('FIX OK')
+                    self.log.info('FIX OK')
                 return False
             else:
                 return True
         except IndentationError:
-            log.error("Indentation check fail  : %s", path)
-            log.error("Automated fix impossible: %s", path)
-            log.error("Look at the stack trace "
-                      "below and fix it manually")
+            self.log.error("Indentation check fail  : %s", path)
+            self.log.error("Automated fix impossible: %s", path)
+            self.log.error("Look at the stack trace "
+                           "below and fix it manually")
             exc_info = sys.exc_info()
             stacktrace.log_exc_info(exc_info, 'inspektor.reindent')
             return False
 
     def check_dir(self, path):
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                self.check_file(os.path.join(dirname, filename))
-
-        walk(path, visit, None)
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                self.check_file(os.path.join(root, filename))
         return not self.failed_paths
 
     def check(self, path):
@@ -251,35 +250,5 @@ class Reindenter(object):
         elif os.path.isdir(path):
             return self.check_dir(path)
         else:
-            log.warning("Invalid location '%s'", path)
+            self.log.warning("Invalid location '%s'", path)
             return False
-
-
-def run_reindent(args):
-    paths = args.path
-    if not paths:
-        paths = [os.getcwd()]
-
-    reindenter = Reindenter(args)
-
-    status = True
-    for path in paths:
-        status &= reindenter.check(path)
-    if status:
-        log.info("Indentation check PASS")
-        return 0
-    else:
-        log.error("Indentation check FAIL")
-        return 1
-
-
-def set_arguments(parser):
-    command = 'indent'
-    pindent = parser.add_parser(command, help='check code indentation')
-    pindent.add_argument('path', type=str,
-                         help='Path to check (empty for full tree check)',
-                         nargs='*',
-                         default=None)
-    pindent.add_argument('--fix', action='store_true', default=False,
-                         help='Fix any indentation problems found')
-    return (command, run_reindent)

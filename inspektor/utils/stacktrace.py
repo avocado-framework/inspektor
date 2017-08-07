@@ -12,9 +12,9 @@
 """
 Traceback standard module plus some additional APIs.
 """
-from traceback import format_exception
-import logging
 import inspect
+import logging
+from traceback import format_exception
 
 
 def tb_info(exc_info):
