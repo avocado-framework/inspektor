@@ -64,7 +64,8 @@ class StyleChecker(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        checker = PathChecker(path=path, args=self.args, label='Style')
+        checker = PathChecker(path=path, args=self.args, label='Style',
+                              logger=self.log)
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
@@ -82,7 +83,7 @@ class StyleChecker(object):
             status = 1
 
         if status != 0:
-            self.log.error('Style check fail: %s', path)
+            checker.log_status(status='FAIL')
             self.failed_paths.append(path)
             if AUTOPEP8_CAPABLE:
                 if self.args.fix:
@@ -96,6 +97,8 @@ class StyleChecker(object):
             else:
                 self.log.error('Python library autopep8 not installed. '
                                'Please install it if you want to use --fix')
+        else:
+            checker.log_status(status='PASS')
 
         return status == 0
 

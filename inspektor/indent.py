@@ -210,7 +210,8 @@ class Reindenter(object):
                  didn't find problems, path is not a python module or
                  script.
         """
-        checker = PathChecker(path=path, args=self.args, label='Indent')
+        checker = PathChecker(path=path, args=self.args, label='Indent',
+                              logger=self.log)
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
@@ -219,15 +220,15 @@ class Reindenter(object):
         f.close()
         try:
             if r.run():
-                self.log.error('Indentation check fail  : %s', path)
                 self.failed_paths.append(path)
                 if self.args.fix:
                     f = open(path, "w")
                     r.write(f)
                     f.close()
-                    self.log.info('FIX OK')
+                checker.log_status(status='FAIL')
                 return False
             else:
+                checker.log_status(status='PASS')
                 return True
         except IndentationError:
             self.log.error("Indentation check fail  : %s", path)

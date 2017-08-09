@@ -97,19 +97,23 @@ class Linter(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        checker = PathChecker(path=path, args=self.args, label='Lint')
+        checker = PathChecker(path=path, args=self.args, label='Lint',
+                              logger=self.log)
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
         try:
             runner = Run(self.get_opts() + [path], exit=False)
             if runner.linter.msg_status != 0:
-                self.log.error('Pylint check fail: %s', path)
                 self.failed_paths.append(path)
+                checker.log_status(status='FAIL')
+            else:
+                checker.log_status(status='PASS')
             return runner.linter.msg_status == 0
         except Exception as details:
             self.log.error('Pylint check fail: %s (pylint exception: %s)',
                            path, details)
             self.failed_paths.append(path)
+            checker.log_status(status='FAIL')
             return False
 
     def check(self, path):

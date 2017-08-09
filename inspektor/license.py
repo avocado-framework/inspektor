@@ -72,7 +72,8 @@ class LicenseChecker(object):
         return not self.failed_paths
 
     def check_file(self, path):
-        checker = PathChecker(path=path, args=self.args, label='License')
+        checker = PathChecker(path=path, args=self.args, label='License',
+                              logger=self.log)
         # Don't put license info in empty __init__.py files.
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
@@ -98,9 +99,10 @@ class LicenseChecker(object):
                         inspected_file.write(new_content)
 
                 self.failed_paths.append(path)
-                self.log.error('License check (%s) fail: %s', self.license_type, path)
+                checker.log_status(status='FAIL')
                 return False
             else:
+                checker.log_status(status='PASS')
                 return True
 
     def check(self, path):
