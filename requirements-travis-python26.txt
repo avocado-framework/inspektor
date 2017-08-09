@@ -1,2 +1,0 @@
-astroid==1.2.1
-logutils==0.3.3
