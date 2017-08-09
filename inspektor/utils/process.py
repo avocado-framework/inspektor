@@ -67,8 +67,8 @@ def run(cmd, verbose=True, ignore_status=False, shell=False):
     duration = time.time() - start
     result = CmdResult(cmd)
     result.exit_status = p.returncode
-    result.stdout = stdout
-    result.stderr = stderr
+    result.stdout = str(stdout)
+    result.stderr = str(stderr)
     result.duration = duration
     if p.returncode != 0 and not ignore_status:
         raise exceptions.CmdError(cmd, result)

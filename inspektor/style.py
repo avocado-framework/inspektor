@@ -64,7 +64,8 @@ class StyleChecker(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        checker = PathChecker(path=path, args=self.args, label='Style')
+        checker = PathChecker(path=path, args=self.args, label='Style',
+                              logger=self.log)
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
 
@@ -82,20 +83,26 @@ class StyleChecker(object):
             status = 1
 
         if status != 0:
-            self.log.error('Style check fail: %s', path)
             self.failed_paths.append(path)
+            fix_status = ''
             if AUTOPEP8_CAPABLE:
                 if self.args.fix:
                     self.log.info('Trying to fix errors with autopep8')
                     try:
-                        process.run('autopep8 --in-place --max-line-length=%s --ignore %s %s' % (self.args.max_line_length, self.args.disable, path))
+                        process.run('autopep8 --in-place --max-line-length=%s --ignore %s %s' % (self.args.max_line_length, self.ignored_errors, path))
+                        fix_status = 'FIX OK'
                     except Exception:
                         self.log.error('Unable to fix errors')
                         exc_info = sys.exc_info()
                         stacktrace.log_exc_info(exc_info, 'inspektor.style')
+                        fix_status = 'FIX NOT OK'
             else:
                 self.log.error('Python library autopep8 not installed. '
                                'Please install it if you want to use --fix')
+                fix_status = 'FIX NOT OK'
+            checker.log_status(status='FAIL', extra=fix_status)
+        else:
+            checker.log_status(status='PASS')
 
         return status == 0
 

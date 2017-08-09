@@ -19,6 +19,9 @@ import sys
 from pylint.lint import Run
 
 from .path import PathChecker
+from .utils import process
+
+_PYLINT_HELP_TEXT = process.run('pylint --help', verbose=False).stdout
 
 
 class Linter(object):
@@ -49,6 +52,10 @@ class Linter(object):
     def set_verbose(self):
         self.verbose = True
 
+    @staticmethod
+    def _pylint_has_option(option):
+        return option in _PYLINT_HELP_TEXT
+
     def get_opts(self):
         """
         If VERBOSE is set, show pylint reports. If not, only an issue summary.
@@ -63,8 +70,9 @@ class Linter(object):
                 pylint_args.append('--disable=%s' % self.ignored_errors)
             if self.enabled_errors:
                 pylint_args.append('--enable=%s' % self.enabled_errors)
-            pylint_args.append('--reports=no')
-            if sys.version_info[:2] > (2, 6):
+            if self._pylint_has_option('--reports='):
+                pylint_args.append('--reports=no')
+            if self._pylint_has_option('--score='):
                 pylint_args.append('--score=no')
 
         return pylint_args
@@ -89,19 +97,23 @@ class Linter(object):
         :return: False, if pylint found syntax problems, True, if pylint didn't
                  find problems, or path is not a python module or script.
         """
-        checker = PathChecker(path=path, args=self.args, label='Lint')
+        checker = PathChecker(path=path, args=self.args, label='Lint',
+                              logger=self.log)
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
         try:
             runner = Run(self.get_opts() + [path], exit=False)
             if runner.linter.msg_status != 0:
-                self.log.error('Pylint check fail: %s', path)
                 self.failed_paths.append(path)
+                checker.log_status(status='FAIL')
+            else:
+                checker.log_status(status='PASS')
             return runner.linter.msg_status == 0
         except Exception as details:
             self.log.error('Pylint check fail: %s (pylint exception: %s)',
                            path, details)
             self.failed_paths.append(path)
+            checker.log_status(status='FAIL')
             return False
 
     def check(self, path):
