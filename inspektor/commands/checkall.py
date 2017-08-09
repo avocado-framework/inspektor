@@ -24,7 +24,7 @@ from inspektor.style import StyleChecker
 
 class CheckAllCommand(Command):
     """
-    check indentation, style, licensing headers and lint
+    check indentation, style, lint and (optionally) license headers
     """
     log = logging.getLogger(__name__)
 
@@ -56,6 +56,8 @@ class CheckAllCommand(Command):
                             help='Quoted string containing paths or '
                                  'patterns to be excluded from '
                                  'checking, comma separated')
+        parser.add_argument('--no-license-check', action='store_true', default=False,
+                            help='Do not perform license check')
         parser.add_argument('--license', type=str,
                             help=('License type. Supported license types: %s. '
                                   'Default: %s' %
@@ -79,14 +81,20 @@ class CheckAllCommand(Command):
         reindenter = Reindenter(parsed_args, logger=self.log)
         style_checker = StyleChecker(parsed_args, logger=self.log)
         linter = Linter(parsed_args, logger=self.log)
-        license_checker = LicenseChecker(parsed_args, logger=self.log)
+        if not parsed_args.no_license_check:
+            self.log.info('License check: (%s)', parsed_args.license)
+            license_checker = LicenseChecker(parsed_args, logger=self.log)
+        else:
+            self.log.info('License check: disabled')
+            license_checker = None
 
         status = True
         for path in checked_paths:
             status &= linter.check(path=path)
             status &= reindenter.check(path=path)
             status &= style_checker.check(path=path)
-            status &= license_checker.check(path=path)
+            if license_checker is not None:
+                status &= license_checker.check(path=path)
 
         if status:
             self.log.info('Global check PASS')
