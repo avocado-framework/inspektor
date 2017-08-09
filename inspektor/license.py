@@ -88,7 +88,7 @@ class LicenseChecker(object):
                 content = content[1:]
             content = "".join(content)
             if self.base_license_contents not in content:
-
+                fix_status = ''
                 if self.args.fix:
                     new_content = ""
                     if first_line is not None:
@@ -97,9 +97,10 @@ class LicenseChecker(object):
                     new_content += self.license_contents + '\n' + content
                     with open(path, 'w') as inspected_file:
                         inspected_file.write(new_content)
+                        fix_status = 'FIX OK'
 
                 self.failed_paths.append(path)
-                checker.log_status(status='FAIL')
+                checker.log_status(status='FAIL', extra=fix_status)
                 return False
             else:
                 checker.log_status(status='PASS')

@@ -221,11 +221,13 @@ class Reindenter(object):
         try:
             if r.run():
                 self.failed_paths.append(path)
+                fix_status = ''
                 if self.args.fix:
                     f = open(path, "w")
                     r.write(f)
                     f.close()
-                checker.log_status(status='FAIL')
+                    fix_status = 'FIX OK'
+                checker.log_status(status='FAIL', extra=fix_status)
                 return False
             else:
                 checker.log_status(status='PASS')

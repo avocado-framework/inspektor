@@ -183,8 +183,10 @@ class PathChecker(object):
             checks_passed &= getattr(self.path, arg)
         return checks_passed
 
-    def log_status(self, status):
+    def log_status(self, status, extra=''):
+        if extra:
+            extra = '(%s)' % extra
         if status == 'PASS':
-            self.log.debug('%s: %s %s', self.label, self.path, status)
+            self.log.debug('%s: %s %s %s', self.label, self.path, status, extra)
         elif status == 'FAIL':
-            self.log.error('%s: %s %s', self.label, self.path, status)
+            self.log.error('%s: %s %s %s', self.label, self.path, status, extra)
