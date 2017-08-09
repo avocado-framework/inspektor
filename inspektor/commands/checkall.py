@@ -15,7 +15,6 @@ import os
 from cliff.command import Command
 
 from inspektor.indent import Reindenter
-from inspektor.license import LicenseChecker
 from inspektor.license import default_license
 from inspektor.license import license_mapping
 from inspektor.lint import Linter
@@ -24,7 +23,7 @@ from inspektor.style import StyleChecker
 
 class CheckAllCommand(Command):
     """
-    check indentation, style, licensing headers and lint
+    check indentation, style, and lint (no license check included).
     """
     log = logging.getLogger(__name__)
 
@@ -79,14 +78,12 @@ class CheckAllCommand(Command):
         reindenter = Reindenter(parsed_args, logger=self.log)
         style_checker = StyleChecker(parsed_args, logger=self.log)
         linter = Linter(parsed_args, logger=self.log)
-        license_checker = LicenseChecker(parsed_args, logger=self.log)
 
         status = True
         for path in checked_paths:
             status &= linter.check(path=path)
             status &= reindenter.check(path=path)
             status &= style_checker.check(path=path)
-            status &= license_checker.check(path=path)
 
         if status:
             self.log.info('Global check PASS')
