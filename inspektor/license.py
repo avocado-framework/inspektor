@@ -49,14 +49,13 @@ default_license = 'gplv2_later'
 class LicenseChecker(object):
 
     def __init__(self, args, logger=logging.getLogger('')):
-        license_type = args.license
+        self.license_type = args.license
         cpyright = args.copyright
         author = args.author
         self.args = args
         self.failed_paths = []
         self.log = logger
-
-        self.license_contents = license_mapping[license_type]
+        self.license_contents = license_mapping[self.license_type]
         self.base_license_contents = self.license_contents
 
         if cpyright:
@@ -82,28 +81,27 @@ class LicenseChecker(object):
         if checker.path.script('python'):
             first_line = checker.path.first_line
 
-        new_content = None
         with open(path, 'r') as inspected_file:
             content = inspected_file.readlines()
             if first_line is not None:
                 content = content[1:]
             content = "".join(content)
             if self.base_license_contents not in content:
-                if not self.args.fix:
-                    return False
-                new_content = ""
-                if first_line is not None:
-                    new_content += first_line
-                    new_content += '\n'
-                new_content += self.license_contents + '\n' + content
 
-        if new_content is not None:
-            with open(path, 'w') as inspected_file:
-                inspected_file.write(new_content)
+                if self.args.fix:
+                    new_content = ""
+                    if first_line is not None:
+                        new_content += first_line
+                        new_content += '\n'
+                    new_content += self.license_contents + '\n' + content
+                    with open(path, 'w') as inspected_file:
+                        inspected_file.write(new_content)
+
                 self.failed_paths.append(path)
+                self.log.error('License check (%s) fail: %s', self.license_type, path)
                 return False
-
-        return True
+            else:
+                return True
 
     def check(self, path):
         if os.path.isfile(path):
