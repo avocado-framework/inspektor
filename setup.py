@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 PROJECT = 'inspektor'
 
 # Change docs/sphinx/conf.py too!
-VERSION = '0.4.0'
+VERSION = '0.4.5'
 
 REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):

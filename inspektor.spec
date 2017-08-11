@@ -1,4 +1,4 @@
-%global inspektorversion 0.4.0
+%global inspektorversion 0.4.5
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
@@ -44,6 +44,8 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Fri Aug 11 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.4.5-0
+- New upstream version 0.4.5
 * Wed Jul 19 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.4.0-0
 - New upstream version 0.4.0
 - Application is now based on the cliff python app framework
