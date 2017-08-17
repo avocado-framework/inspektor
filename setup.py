@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 
 PROJECT = 'inspektor'
 
-# Change docs/sphinx/conf.py too!
+# Change docs/sphinx/conf.py and inspektor/cli/app.py
 VERSION = '0.4.5'
 
 REQUIRES = ['six']
