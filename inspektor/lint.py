@@ -15,6 +15,7 @@
 import logging
 import os
 import sys
+import multiprocessing
 
 from pylint.lint import Run
 
@@ -22,6 +23,21 @@ from .path import PathChecker
 from .utils import process
 
 _PYLINT_HELP_TEXT = process.run('pylint --help', verbose=False).stdout
+
+
+def run_pylint_file(args):
+    filename, other_opts = args
+    default_opts = ['--rcfile=/dev/null',
+                    '--good-names=i,j,k,Run,_,vm',
+                    ('--msg-template='
+                     '"{msg_id}:{line:3d},{column}: {obj}: {msg}"')]
+    opts = default_opts + other_opts
+    runner = Run(opts + [filename], exit=False)
+    try:
+        if runner.linter.msg_status != 0:
+            return filename
+    except Exception as details:
+        return filename
 
 
 class Linter(object):
@@ -83,11 +99,25 @@ class Linter(object):
 
         :param path: Path to a directory.
         """
+        filenames = []
+        failed_paths = []
         for root, dirs, files in os.walk(path):
             for filename in files:
-                self.check_file(os.path.join(root, filename))
+                filename = os.path.join(root, filename)
+                checker = PathChecker(path=filename, args=self.args, label='Lint',
+                                      logger=self.log)
+                if checker.check_attributes('text', 'python', 'not_empty'):
+                    filenames.append(os.path.join(root, filename))
 
-        return not self.failed_paths
+        if filenames:
+            pool = multiprocessing.Pool()
+            opts = self.get_opts()
+            args = [(filename, opts) for filename in filenames]
+            failed_paths = pool.map(run_pylint_file, args)
+            failed_paths = [path for path in failed_paths if path is not None]
+            if any(failed_paths):
+                self.failed_paths += failed_paths
+        return not failed_paths
 
     def check_file(self, path):
         """
