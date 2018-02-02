@@ -16,12 +16,26 @@ import logging
 import os
 import sys
 
-from pylint.lint import Run
+from pylint.lint import Run, PyLinter
 
 from .path import PathChecker
 from .utils import process
 
 _PYLINT_HELP_TEXT = process.run('pylint --help', verbose=False).stdout
+
+
+class QuietPyLinter(PyLinter):
+    def read_config_file(self, config_file=None):
+        quiet = self.quiet
+        try:
+            self.quiet = 1
+            return super(QuietPyLinter, self).read_config_file()
+        finally:
+            self.quiet = quiet
+
+
+class QuietLintRun(Run):
+    LinterClass = QuietPyLinter
 
 
 class Linter(object):
@@ -102,7 +116,7 @@ class Linter(object):
         if not checker.check_attributes('text', 'python', 'not_empty'):
             return True
         try:
-            runner = Run(self.get_opts() + [path], exit=False)
+            runner = QuietLintRun(self.get_opts() + [path], exit=False)
             if runner.linter.msg_status != 0:
                 self.failed_paths.append(path)
                 checker.log_status(status='FAIL')
