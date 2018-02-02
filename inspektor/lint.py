@@ -49,9 +49,6 @@ class Linter(object):
         else:
             self.log.info('Verbose mode, no disable/enable, full reports')
 
-    def set_verbose(self):
-        self.verbose = True
-
     @staticmethod
     def _pylint_has_option(option):
         return option in _PYLINT_HELP_TEXT
