@@ -69,8 +69,6 @@ class CheckAllCommand(Command):
         parser.add_argument('--author', type=str,
                             help='Author string. Ex: "Author: Brandon Lindon <brandon.lindon@foocorp.com>"',
                             default="")
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
         return parser
 
     def take_action(self, parsed_args):

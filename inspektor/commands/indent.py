@@ -35,8 +35,6 @@ class IndentCommand(Command):
                             help='Quoted string containing paths or '
                                  'patterns to be excluded from '
                                  'checking, comma separated')
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
         return parser
 
     def take_action(self, parsed_args):

@@ -53,7 +53,6 @@ class Linter(object):
             self.enabled_errors = args.enable_lint
         self.log = logger
         self.args = args
-        self.verbose = args.verbose
         if hasattr(args, 'parallel'):
             self.parallel = args.parallel
         else:
@@ -61,11 +60,8 @@ class Linter(object):
             self.parallel = multiprocessing.cpu_count()
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
-        if not self.verbose:
-            self.log.info('Pylint disabled: %s' % self.ignored_errors)
-            self.log.info('Pylint enabled : %s' % self.enabled_errors)
-        else:
-            self.log.info('Verbose mode, no disable/enable, full reports')
+        self.log.info('Pylint disabled: %s' % self.ignored_errors)
+        self.log.info('Pylint enabled : %s' % self.enabled_errors)
 
     @staticmethod
     def _pylint_has_option(option):
@@ -80,17 +76,16 @@ class Linter(object):
                        ('--msg-template='
                         '"{msg_id}:{line:3d},{column}: {obj}: {msg}"')]
 
-        if not self.verbose:
-            if self.ignored_errors:
-                pylint_args.append('--disable=%s' % self.ignored_errors)
-            if self.enabled_errors:
-                pylint_args.append('--enable=%s' % self.enabled_errors)
-            if self._pylint_has_option('--reports='):
-                pylint_args.append('--reports=no')
-            if self._pylint_has_option('--score='):
-                pylint_args.append('--score=no')
-            if self._pylint_has_option('--jobs='):
-                pylint_args.append('--jobs=%s' % self.parallel)
+        if self.ignored_errors:
+            pylint_args.append('--disable=%s' % self.ignored_errors)
+        if self.enabled_errors:
+            pylint_args.append('--enable=%s' % self.enabled_errors)
+        if self._pylint_has_option('--reports='):
+            pylint_args.append('--reports=no')
+        if self._pylint_has_option('--score='):
+            pylint_args.append('--score=no')
+        if self._pylint_has_option('--jobs='):
+            pylint_args.append('--jobs=%s' % self.parallel)
 
         return pylint_args
 

@@ -42,8 +42,6 @@ class LintCommand(Command):
                             help='Quoted string containing paths or '
                                  'patterns to be excluded from '
                                  'checking, comma separated')
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
         parser.add_argument('--parallel', action='store', nargs='?',
                             default=multiprocessing.cpu_count(),
                             help="How many threads to use")
