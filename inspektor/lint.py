@@ -54,9 +54,13 @@ class Linter(object):
         self.log = logger
         self.args = args
         self.verbose = args.verbose
+        if hasattr(args, 'parallel'):
+            self.parallel = args.parallel
+        else:
+            import multiprocessing
+            self.parallel = multiprocessing.cpu_count()
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
-        self.failed_paths = []
         if not self.verbose:
             self.log.info('Pylint disabled: %s' % self.ignored_errors)
             self.log.info('Pylint enabled : %s' % self.enabled_errors)
@@ -85,53 +89,44 @@ class Linter(object):
                 pylint_args.append('--reports=no')
             if self._pylint_has_option('--score='):
                 pylint_args.append('--score=no')
+            if self._pylint_has_option('--jobs='):
+                pylint_args.append('--jobs=%s' % self.parallel)
 
         return pylint_args
 
-    def check_dir(self, path):
-        """
-        Recursively go on a directory checking files with pylint.
-
-        :param path: Path to a directory.
-        """
-        for root, dirs, files in os.walk(path):
-            for filename in files:
-                self.check_file(os.path.join(root, filename))
-
-        return not self.failed_paths
-
-    def check_file(self, path):
-        """
-        Check one regular file with pylint for py syntax errors.
-
-        :param path: Path to a regular file.
-        :return: False, if pylint found syntax problems, True, if pylint didn't
-                 find problems, or path is not a python module or script.
-        """
-        checker = PathChecker(path=path, args=self.args, label='Lint',
-                              logger=self.log)
-        if not checker.check_attributes('text', 'python', 'not_empty'):
-            return True
-        try:
-            runner = QuietLintRun(self.get_opts() + [path], exit=False)
-            if runner.linter.msg_status != 0:
-                self.failed_paths.append(path)
-                checker.log_status(status='FAIL')
+    def check(self, file_or_dirs):
+        def should_be_checked(path):
+            checker = PathChecker(path=path, args=self.args, label='Lint',
+                                  logger=self.log)
+            return checker.check_attributes('text', 'python', 'not_empty')
+        paths = []
+        not_file_or_dirs = []
+        for file_or_dir in file_or_dirs:
+            if os.path.isdir(file_or_dir):
+                for root, _, files in os.walk(file_or_dir):
+                    for filename in files:
+                        path = os.path.join(root, filename)
+                        if should_be_checked(path):
+                            paths.append(path)
+            elif os.path.isfile(file_or_dir):
+                if should_be_checked(file_or_dir):
+                    paths.append(file_or_dir)
             else:
-                checker.log_status(status='PASS')
-            return runner.linter.msg_status == 0
-        except Exception as details:
-            self.log.error('Pylint check fail: %s (pylint exception: %s)',
-                           path, details)
-            self.failed_paths.append(path)
-            checker.log_status(status='FAIL')
-            return False
-
-    def check(self, path):
-        if os.path.isfile(path):
-            return self.check_file(path)
-        elif os.path.isdir(path):
-            return self.check_dir(path)
-        else:
-            self.log.error("Invalid location '%s'", path)
-            return False
+                not_file_or_dirs.append(file_or_dir)
+        linter_failed = True
+        if paths:
+            runner = QuietLintRun(self.get_opts() + paths, exit=False)
+            for module, status in runner.linter.stats.get('by_module').items():
+                if any(status.values()):
+                    self.log.debug('Lint: %s FAIL', module)
+                else:
+                    self.log.debug('Lint: %s PASS', module)
+            if runner.linter.msg_status == 0:
+                linter_failed = False
+        if not_file_or_dirs:
+            self.log.error("Following arguments are not files nor dirs: %s",
+                           ", ".join(not_file_or_dirs))
+            return 0
+        if linter_failed:
+            return 0
+        return 1
