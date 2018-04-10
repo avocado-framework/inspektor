@@ -281,10 +281,10 @@ class GitBackend(object):
 
     def get_repo_name(self):
         """
-        Get tje repository name from git remote command output.
+        Get the repository name from git remote command output.
         """
         cmd = "git remote -v | head -n1 | awk '{print $2}'"
-        cmd += " | sed -e 's,.*:\(.*/\)\?,,' -e 's/\.git$//'"
+        cmd += " | sed -e 's,.*:\\(.*/\\)\\?,,' -e 's/\\.git$//'"
         return process.run(cmd, verbose=False, shell=True).stdout.strip()
 
     def get_unknown_files(self):
