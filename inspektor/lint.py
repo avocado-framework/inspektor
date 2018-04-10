@@ -60,8 +60,8 @@ class Linter(object):
             self.parallel = multiprocessing.cpu_count()
         # Be able to analyze all imports inside the project
         sys.path.insert(0, os.getcwd())
-        self.log.info('Pylint disabled: %s' % self.ignored_errors)
-        self.log.info('Pylint enabled : %s' % self.enabled_errors)
+        self.log.info('Pylint disabled: %s', self.ignored_errors)
+        self.log.info('Pylint enabled : %s', self.enabled_errors)
 
     @staticmethod
     def _pylint_has_option(option):

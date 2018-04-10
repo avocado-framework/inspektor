@@ -36,9 +36,9 @@ def ask(question, auto=False, options="y/n"):
     :param auto: Whether to return "y" instead of asking the question
     """
     if auto:
-        log.info("%s (%s) y" % (question, options))
+        log.info("%s (%s) y", question, options)
         return "y"
-    return input("%s (%s) " % (question, options))
+    return input("%s (%s) ", question, options)
 
 
 def random_string(length, ignore_str=string.punctuation,
