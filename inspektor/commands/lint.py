@@ -10,6 +10,7 @@
 # See LICENSE for more details.
 
 import logging
+import multiprocessing
 import os
 
 from cliff.command import Command
@@ -41,8 +42,9 @@ class LintCommand(Command):
                             help='Quoted string containing paths or '
                                  'patterns to be excluded from '
                                  'checking, comma separated')
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
+        parser.add_argument('--parallel', action='store', nargs='?',
+                            default=multiprocessing.cpu_count(),
+                            help="How many threads to use")
         return parser
 
     def take_action(self, parsed_args):
@@ -50,10 +52,8 @@ class LintCommand(Command):
             parsed_args.path = [os.getcwd()]
 
         linter = Linter(parsed_args, logger=self.log)
+        status = linter.check(parsed_args.path)
 
-        status = True
-        for path in parsed_args.path:
-            status &= linter.check(path)
         if status:
             self.log.info("Syntax check PASS")
             return 0

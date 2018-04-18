@@ -69,8 +69,6 @@ class CheckAllCommand(Command):
         parser.add_argument('--author', type=str,
                             help='Author string. Ex: "Author: Brandon Lindon <brandon.lindon@foocorp.com>"',
                             default="")
-        parser.add_argument('--verbose', action='store_true',
-                            help='Print extra debug messages')
         return parser
 
     def take_action(self, parsed_args):
@@ -88,9 +86,8 @@ class CheckAllCommand(Command):
             self.log.info('License check: disabled')
             license_checker = None
 
-        status = True
+        status = linter.check(checked_paths)
         for path in checked_paths:
-            status &= linter.check(path=path)
             status &= reindenter.check(path=path)
             status &= style_checker.check(path=path)
             if license_checker is not None:

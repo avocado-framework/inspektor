@@ -43,7 +43,7 @@ class StyleChecker(object):
         elif hasattr(args, 'disable_style'):
             self.ignored_errors = args.disable_style
         self.args = args
-        self.log.info('PEP8 disabled: %s' % self.ignored_errors)
+        self.log.info('PEP8 disabled: %s', self.ignored_errors)
 
     def check_dir(self, path):
         """

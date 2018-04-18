@@ -234,8 +234,8 @@ class SubVersionBackend(object):
     def update(self):
         try:
             process.run("svn update")
-        except exceptions.CmdError as e:
-            self.log.error("SVN tree update failed: %s" % e)
+        except exceptions.CmdError as details:
+            self.log.error("SVN tree update failed: %s", details)
 
     def get_modified_files_patch(self, untracked_files_before, patch):
         """
@@ -281,10 +281,10 @@ class GitBackend(object):
 
     def get_repo_name(self):
         """
-        Get tje repository name from git remote command output.
+        Get the repository name from git remote command output.
         """
         cmd = "git remote -v | head -n1 | awk '{print $2}'"
-        cmd += " | sed -e 's,.*:\(.*/\)\?,,' -e 's/\.git$//'"
+        cmd += " | sed -e 's,.*:\\(.*/\\)\\?,,' -e 's/\\.git$//'"
         return process.run(cmd, verbose=False, shell=True).stdout.strip()
 
     def get_unknown_files(self):
@@ -376,8 +376,7 @@ class GitBackend(object):
             process.run("git checkout -b %s" % branch,
                         verbose=False)
         except exceptions.CmdError:
-            self.log.error("branch %s already exists!"
-                           % branch)
+            self.log.error("branch %s already exists!", branch)
             answer = ask("What would you like to do?",
                          options="Abort/Delete/Rename/OldBase/NewBase")
             if not answer:
@@ -427,15 +426,16 @@ class GitBackend(object):
                 process.run("git checkout -b %s" % branch, verbose=False)
         try:
             process.run("git am -3 %s" % patch, verbose=False)
-        except exceptions.CmdError as e:
-            self.log.error("Failed to apply patch to the git repo: %s" % e)
+        except exceptions.CmdError as details:
+            self.log.error("Failed to apply patch to the git repo: %s",
+                           details)
             return 1
 
     def update(self):
         try:
             process.run("git pull", verbose=False)
-        except exceptions.CmdError as e:
-            self.log.error("git tree update failed: %s" % e)
+        except exceptions.CmdError as details:
+            self.log.error("git tree update failed: %s", details)
 
     def get_modified_files_patch(self, untracked_files_before, patch):
         """
