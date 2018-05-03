@@ -1,4 +1,4 @@
-%global inspektorversion 0.4.6
+%global inspektorversion 0.5.1
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
@@ -44,6 +44,8 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Thu May  3 2018 Cleber Rosa <cleber@redhat.com> - 0.5.1-0
+- New upstream version 0.5.1
 * Thu May  3 2018 Cleber Rosa <cleber@redhat.com> - 0.4.6-0
 - New upstream version 0.4.6
 - Updated URL from autotest to avocado-framework project
