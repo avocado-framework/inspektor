@@ -1,11 +1,11 @@
-%global inspektorversion 0.4.5
+%global inspektorversion 0.4.6
 Summary: Inspektor python project checker
 Name: inspektor
 Version: %{inspektorversion}
 Release: 0%{?dist}
 License: GPLv2
 Group: Development/Tools
-URL: https://github.com/autotest/inspektor
+URL: https://github.com/avocado-framework/inspektor
 Source: inspektor-%{inspektorversion}.tar.gz
 BuildArch: noarch
 
@@ -44,6 +44,9 @@ patch review for programs developed by the autotest project team.
 
 
 %changelog
+* Thu May  3 2018 Cleber Rosa <cleber@redhat.com> - 0.4.6-0
+- New upstream version 0.4.6
+- Updated URL from autotest to avocado-framework project
 * Fri Aug 11 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.4.5-0
 - New upstream version 0.4.5
 * Wed Jul 19 2017 Lucas Meneghel Rodrigues <lookkas@gmail.com> - 0.4.0-0

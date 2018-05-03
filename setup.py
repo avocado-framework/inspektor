@@ -19,8 +19,8 @@ from setuptools import setup, find_packages
 
 PROJECT = 'inspektor'
 
-# Change docs/sphinx/conf.py and inspektor/cli/app.py
-VERSION = '0.4.5'
+# Change documentation/source/conf.py and inspektor/cli/app.py
+VERSION = '0.4.6'
 
 REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
