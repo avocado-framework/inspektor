@@ -5,6 +5,7 @@ tags
 cscope.*
 .project
 .pydevproject
-.venv
+.venv*
 .idea
+inspektor.egg-info
 MANIFEST
