@@ -25,17 +25,28 @@ _PYLINT_HELP_TEXT = process.run('pylint --help', verbose=False).stdout
 
 
 class QuietPyLinter(PyLinter):
-    def read_config_file(self, config_file=None):
-        quiet = self.quiet
-        try:
-            self.quiet = 1
-            return super(QuietPyLinter, self).read_config_file()
-        finally:
-            self.quiet = quiet
+    def read_config_file(self, *args, **kwargs):
+        if getattr(self, 'quiet', None) is not None:
+            # pylint: disable=E0203
+            quiet = self.quiet
+            try:
+                self.quiet = 1
+                return super(QuietPyLinter, self).read_config_file()
+            finally:
+                self.quiet = quiet
+
+        return super(QuietPyLinter, self).read_config_file()
 
 
 class QuietLintRun(Run):
     LinterClass = QuietPyLinter
+
+    def __init__(self, *args, **kwargs):
+        try:
+            super(QuietLintRun, self).__init__(*args, **kwargs)
+        except TypeError:
+            kwargs.pop('exit')
+            super(QuietLintRun, self).__init__(*args, **kwargs)
 
 
 class Linter(object):
