@@ -86,12 +86,13 @@ class CheckAllCommand(Command):
             self.log.info('License check: disabled')
             license_checker = None
 
-        status = linter.check(checked_paths)
+        status = True
         for path in checked_paths:
             status &= reindenter.check(path=path)
             status &= style_checker.check(path=path)
             if license_checker is not None:
                 status &= license_checker.check(path=path)
+        status &= linter.check(checked_paths)
 
         if status:
             self.log.info('Global check PASS')
