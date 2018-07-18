@@ -43,7 +43,7 @@ build-rpm-all: source
 		 -ba inspektor.spec
 
 check:
-	inspekt checkall --verbose
+	inspekt checkall --verbose --exclude .venv
 
 clean:
 	$(PYTHON) setup.py clean

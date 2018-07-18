@@ -26,7 +26,7 @@ REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
     REQUIRES += ['astroid==1.2.1', 'pycodestyle>=2.0.0', 'pylint==1.3.1',
                  'logutils>=0.3.3', 'stevedore<=1.10', 'cliff<=1.15.0',
-                 'pbr<2.0,>=1.4']
+                 'pbr<2.0,>=1.4', 'cmd2<=0.7.0']
 elif sys.version_info[:2] == (2, 7):
     REQUIRES += ['pycodestyle>=2.0.0', 'pylint>=1.3', 'cliff']
 elif sys.version_info[0] == 3:
