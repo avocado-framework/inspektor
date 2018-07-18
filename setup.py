@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 PROJECT = 'inspektor'
 
 # Change documentation/source/conf.py and inspektor/cli/app.py
-VERSION = '0.5.1'
+VERSION = '0.5.2'
 
 REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
