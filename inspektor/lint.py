@@ -122,7 +122,12 @@ class Linter(object):
         linter_failed = True
         if paths:
             runner = QuietLintRun(self.get_opts() + paths, exit=False)
-            for module, status in runner.linter.stats.get('by_module').items():
+            if hasattr(runner.linter.stats, 'get'):
+                items = runner.linter.stats.get('by_module').items()
+            else:
+                items = runner.linter.stats.by_module.items()
+            for module, status in items:
+                status.pop("statement")
                 if any(status.values()):
                     self.log.debug('Lint: %s FAIL', module)
                 else:
