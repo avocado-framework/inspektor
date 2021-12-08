@@ -26,7 +26,7 @@ class InspektorApp(App):
     def __init__(self):
         super(InspektorApp, self).__init__(
             description='Inspektor python code checker and fixer',
-            version='0.5.2',
+            version='0.5.3',
             command_manager=CommandManager('inspektor.app'),
             deferred_help=True,
             )

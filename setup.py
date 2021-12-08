@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 PROJECT = 'inspektor'
 
 # Change documentation/source/conf.py and inspektor/cli/app.py
-VERSION = '0.5.2'
+VERSION = '0.5.3'
 
 REQUIRES = ['six']
 if sys.version_info[:2] == (2, 6):
@@ -42,6 +42,7 @@ setup(
     version=VERSION,
 
     description='Inspektor python code checker and fixer',
+    long_description_content_type='text/x-rst',
     long_description=long_description,
 
     author='Lucas Meneghel Rodrigues',

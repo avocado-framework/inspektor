@@ -56,16 +56,19 @@ Usage
 ::
 
     inspekt lint
+
 3) If you want to check indentation:
 
 ::
 
     inspekt indent
+
 4) If you want to check compliance to the PEP8:
 
 ::
 
     inspekt style
+
 5) If you want to check PR #123 for a project inside the autotest github area:
 
 ::
