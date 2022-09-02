@@ -1,7 +1,7 @@
 Inspektor
 =========
 
-Inspektor is a program used to verify the code of your python project. It
+Inspektor is a program used to verify the code of your Python project. It
 evolved from a set of scripts used to check patches and code of python projects
 of the autotest organization [1]. As the project grew and new modules started
 to be developed, we noticed the same scripts had to be copied to each new
